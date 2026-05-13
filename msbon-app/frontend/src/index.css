@@ -1,0 +1,145 @@
+/* Editorial design system — MSBON Verification
+ * Three colours (cream, charcoal, terracotta), two typefaces (Fraunces, DM Sans).
+ * Self-hosted variable fonts via @fontsource — no CDN calls.
+ */
+@import "@fontsource-variable/fraunces/wght.css";
+@import "@fontsource-variable/fraunces/wght-italic.css";
+@import "@fontsource-variable/dm-sans/wght.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --cream:            #F7F3EE;
+  --cream-dark:       #EDE7DC;
+  --charcoal:         #1E1E1E;
+  --charcoal-muted:   #6B6560;
+  --charcoal-faint:   rgba(30, 30, 30, 0.08);
+  --terracotta:       #B84A32;
+  --terracotta-dark:  #9F3E2A;
+  --terracotta-light: rgba(184, 74, 50, 0.10);
+
+  font-family: "DM Sans Variable", system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--charcoal);
+  background: var(--cream);
+  color-scheme: light;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--cream);
+}
+
+#root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+p { margin: 0; }
+
+::selection {
+  background: var(--terracotta);
+  color: var(--cream);
+}
+
+/* Editorial containers ---------------------------------------------------- */
+@layer utilities {
+  .container-editorial {
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: clamp(1.5rem, 5vw, 6rem);
+  }
+  .container-prose {
+    max-width: 68ch;
+    margin-inline: auto;
+    padding-inline: clamp(1.5rem, 5vw, 3rem);
+  }
+  .container-wide {
+    max-width: 1400px;
+    margin-inline: auto;
+    padding-inline: clamp(1.5rem, 5vw, 4rem);
+  }
+
+  .section-xl { padding-block: clamp(5rem, 12vw, 10rem); }
+  .section-lg { padding-block: clamp(4rem, 8vw, 7rem);  }
+  .section-md { padding-block: clamp(3rem, 6vw, 5rem);  }
+
+  /* Fraunces optical-size axis: tiny → 9, hero → 144 */
+  .opsz-body { font-variation-settings: "opsz" 9; }
+  .opsz-hero { font-variation-settings: "opsz" 144; }
+
+  /* Hover underline that grows from the left — used by nav links */
+  .nav-underline {
+    position: relative;
+  }
+  .nav-underline::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -4px;
+    height: 1px;
+    background: var(--terracotta);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.2s ease-out;
+  }
+  .nav-underline:hover::after,
+  .nav-underline[data-active="true"]::after {
+    transform: scaleX(1);
+  }
+
+  /* Drop cap for the first paragraph of story prose */
+  .prose-drop-cap > p:first-of-type::first-letter {
+    font-family: "Fraunces Variable", Fraunces, Georgia, serif;
+    font-variation-settings: "opsz" 144, "wght" 400;
+    float: left;
+    font-size: 4em;
+    line-height: 0.8;
+    margin-right: 0.12em;
+    margin-top: 0.08em;
+    color: var(--terracotta);
+  }
+
+  /* Reading-grade story prose */
+  .prose-editorial p {
+    font-family: "Fraunces Variable", Fraunces, Georgia, serif;
+    font-variation-settings: "opsz" 9, "wght" 400;
+    font-size: 1.25rem;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+    color: var(--charcoal);
+  }
+}
+
+/* Respect user motion preference: kill all transitions + animations. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Editorial scrollbar (subtle, charcoal-faint) */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--charcoal-faint);
+  border-radius: 0;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--charcoal-muted); }
