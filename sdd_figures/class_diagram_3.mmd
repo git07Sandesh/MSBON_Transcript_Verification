@@ -1,0 +1,62 @@
+classDiagram
+    class RuleEngine {
+        -list~BaseRule~ rules
+        +evaluate(extracted_data) list~VerificationFlag~
+        +load_active_rules(db_session) None
+        -_run_all(extracted_data) list~VerificationFlag~
+    }
+
+    class BaseRule {
+        <<abstract>>
+        +String rule_id
+        +String name
+        +FlagCategory category
+        +FlagSeverity severity
+        +evaluate(data)* Optional~VerificationFlag~
+        #_build_flag(description, source_excerpt, explanation, is_fraud) VerificationFlag
+    }
+
+    class GraduationConfirmationRule {
+        +evaluate(data) Optional~VerificationFlag~
+        -_check_graduation_date(data) bool
+        -_check_degree_conferral(data) bool
+        -_check_completion_statement(data) bool
+    }
+
+    class AccreditationRule {
+        -ProgramRepository program_repo
+        +evaluate(data) Optional~VerificationFlag~
+        -_match_institution(name) Optional~AccreditedProgram~
+        -_fuzzy_match(name, threshold) Optional~AccreditedProgram~
+    }
+
+    class CourseCompletionRule {
+        -REQUIRED_COURSES list~str~
+        -MIN_CREDIT_HOURS int
+        +evaluate(data) Optional~VerificationFlag~
+        -_check_required_courses(courses) list~str~
+        -_check_credit_hours(courses) bool
+    }
+
+    class FraudIndicatorRule {
+        +evaluate(data) Optional~VerificationFlag~
+        -_check_date_anomalies(data) bool
+        -_check_grade_patterns(courses) bool
+        -_check_known_fraud_schools(institution) bool
+        -_check_impossible_completion(data) bool
+    }
+
+    class FormattingConsistencyRule {
+        +evaluate(data) Optional~VerificationFlag~
+        -_check_required_fields_present(data) bool
+        -_check_date_format_consistency(data) bool
+        -_check_grade_format_consistency(courses) bool
+    }
+
+    RuleEngine --> BaseRule
+    BaseRule <|-- GraduationConfirmationRule
+    BaseRule <|-- AccreditationRule
+    BaseRule <|-- CourseCompletionRule
+    BaseRule <|-- FraudIndicatorRule
+    BaseRule <|-- FormattingConsistencyRule
+    AccreditationRule --> ProgramRepository

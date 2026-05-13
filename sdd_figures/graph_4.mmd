@@ -1,0 +1,79 @@
+graph TB
+    subgraph mw["Middleware — app/middleware/"]
+        CID["CorrelationIDMiddleware"]
+        REQ["RequestLoggingMiddleware"]
+        CORS["CORSMiddleware"]
+    end
+
+    subgraph auth["Auth — app/auth/, app/api/v1/auth.py, app/api/v1/dependencies.py"]
+        LOGIN["auth.login\nPOST /auth/login"]
+        VTOK["verify_token\nDepends()"]
+        RPERM["require_permission(p)\nRBAC"]
+    end
+
+    subgraph api["API Layer — app/api/v1/"]
+        TR["transcripts.py\nRouter"]
+        RV["reviews.py\nRouter"]
+        AL["audit.py\nRouter"]
+        PG["programs.py\nRouter"]
+        HE["health.py\nRouter"]
+    end
+
+    subgraph svc["Service Layer — app/services/"]
+        TS["TranscriptService\nupload · process · get · list"]
+        ES["ExtractionService\nextract()"]
+        VS["VerificationService\nverify()"]
+        RS["ReviewService\nsubmit_review()"]
+        AS["AuditService\nlog · get · export"]
+    end
+
+    subgraph dom["Domain Layer — app/domain/"]
+        REN["RuleEngine\nrun_all()"]
+        GR["GraduationConfirmation\n+ GraduationDate"]
+        AR["AccreditationRule"]
+        CR["CourseCompletionRule"]
+        FR["FraudIndicatorRule"]
+        FMR["FormattingConsistencyRule"]
+    end
+
+    subgraph infra["Infrastructure Layer — app/infrastructure/"]
+        DOCEX["DocumentExtractor\npdfplumber + pytesseract"]
+        LLMAD["LLMAdapter\ngoogle-generativeai"]
+    end
+
+    subgraph repo["Repositories — app/repositories/"]
+        TREP["TranscriptRepository"]
+        RREP["ReviewRepository"]
+        AREP["AuditRepository<br/>(write-only)"]
+        PREP["ProgramRepository"]
+    end
+
+    Client["React SPA"] --> CORS --> CID --> REQ
+    REQ --> TR & RV & AL & PG & HE
+    LOGIN --> VTOK
+    TR & RV & AL & PG --> VTOK --> RPERM
+
+    TR --> TS
+    RV --> RS
+    AL --> AS
+    PG --> PREP
+
+    TS --> ES
+    TS --> VS
+    TS --> AS
+    TS --> TREP
+
+    ES --> DOCEX
+    ES --> LLMAD
+
+    VS --> REN
+    VS --> AS
+    VS --> TREP
+
+    RS --> RREP
+    RS --> AS
+
+    REN --> GR & AR & CR & FR & FMR
+    AR --> PREP
+
+    TREP & RREP & AREP & PREP --> DB[("SQLite DB\n+ Alembic")]

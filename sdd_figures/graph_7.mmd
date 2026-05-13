@@ -1,0 +1,6 @@
+graph TB
+    E2E["E2E Tests — 5%\nPlaywright\nFull upload → verify → review flow\nRuns against live dev server"]
+    INT["Integration Tests — 25%\npytest + FastAPI TestClient\nSQLite in-memory DB\nAll API endpoints"]
+    UNIT["Unit Tests — 70%\npytest\nRule classes · Services · Extractor\nLLMAdapter (mocked Gemini)"]
+
+    E2E --> INT --> UNIT

@@ -1,0 +1,21 @@
+stateDiagram-v2
+    [*] --> UPLOADED : File saved to disk successfully
+
+    UPLOADED --> EXTRACTING : Staff triggers process
+
+    EXTRACTING --> EXTRACTED : Text extraction success
+    EXTRACTING --> EXTRACTION_FAILED : OCR / PDF error
+
+    EXTRACTION_FAILED --> [*] : Logged, staff notified
+
+    EXTRACTED --> VERIFYING : Rule engine starts
+
+    VERIFYING --> FLAGGED : One or more rules triggered
+    VERIFYING --> CLEAR : No rules triggered
+
+    FLAGGED --> UNDER_REVIEW : Staff opens review
+    CLEAR --> UNDER_REVIEW : Staff opens review (optional)
+
+    UNDER_REVIEW --> REVIEWED : All flags have a staff decision
+
+    REVIEWED --> [*]

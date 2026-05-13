@@ -1,0 +1,62 @@
+classDiagram
+    class DocumentExtractor {
+        +extract_text(file_path, file_type) str
+        -_extract_from_pdf(file_path) str
+        -_extract_from_image(file_path) str
+        -_preprocess_image(img) Image
+        -_clean_text(raw) str
+    }
+
+    class LLMAdapter {
+        -GenerativeModel client
+        -String model_name
+        -String system_prompt
+        -int max_retries
+        +extract_structured_data(raw_text) dict
+        -_build_prompt(raw_text) str
+        -_parse_response(response) dict
+        -_validate_schema(data) bool
+        -_retry_with_backoff(attempt) None
+    }
+
+    class BaseRepository {
+        <<abstract>>
+        #Session db
+        +get_by_id(id)* Optional~T~
+        +save(entity)* T
+        +list(filters)* list~T~
+    }
+
+    class TranscriptRepository {
+        +get_by_id(id) Optional~Transcript~
+        +save(transcript) Transcript
+        +update_status(id, status) Transcript
+        +list(filters) list~Transcript~
+        +get_with_flags(id) Optional~Transcript~
+    }
+
+    class ReviewRepository {
+        +get_by_id(id) Optional~StaffReview~
+        +save(review) StaffReview
+        +get_by_transcript(transcript_id) list~StaffReview~
+        +get_by_flag(flag_id) Optional~StaffReview~
+    }
+
+    class AuditRepository {
+        +get_by_id(id) Optional~AuditLog~
+        +save(log) AuditLog
+        +get_by_transcript(transcript_id) list~AuditLog~
+        +get_all(filters) list~AuditLog~
+    }
+
+    class ProgramRepository {
+        +get_by_id(id) Optional~AccreditedProgram~
+        +find_by_name(name) Optional~AccreditedProgram~
+        +list_active() list~AccreditedProgram~
+        +save(program) AccreditedProgram
+    }
+
+    BaseRepository <|-- TranscriptRepository
+    BaseRepository <|-- ReviewRepository
+    BaseRepository <|-- AuditRepository
+    BaseRepository <|-- ProgramRepository

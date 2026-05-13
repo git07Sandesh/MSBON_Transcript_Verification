@@ -1,0 +1,92 @@
+erDiagram
+    TRANSCRIPT {
+        string id PK
+        string filename
+        string file_path
+        string file_type
+        string status
+        datetime uploaded_at
+        datetime processed_at
+        string uploaded_by
+    }
+
+    EXTRACTED_DATA {
+        string id PK
+        string transcript_id FK
+        string student_name
+        string institution_name
+        string program_name
+        string degree_type
+        date graduation_date
+        boolean graduation_confirmed
+        text courses_json
+        text raw_text
+        float extraction_confidence
+        datetime extracted_at
+        string llm_model_used
+    }
+
+    VERIFICATION_FLAG {
+        string id PK
+        string transcript_id FK
+        string rule_id FK
+        string severity
+        string category
+        string description
+        text source_excerpt
+        text explanation
+        boolean is_fraud_indicator
+        datetime flagged_at
+    }
+
+    STAFF_REVIEW {
+        string id PK
+        string flag_id FK
+        string transcript_id FK
+        string reviewer_id
+        string decision
+        text annotation
+        datetime reviewed_at
+        text override_reason
+    }
+
+    AUDIT_LOG {
+        string id PK
+        string transcript_id FK
+        string actor_id
+        string action_type
+        text action_detail
+        string outcome
+        datetime timestamp
+        string ip_address
+    }
+
+    FLAGGING_RULE {
+        string id PK
+        string name
+        string category
+        string description
+        string severity
+        boolean is_active
+        text rule_config
+        datetime created_at
+        datetime updated_at
+    }
+
+    ACCREDITED_PROGRAM {
+        string id PK
+        string institution_name
+        string program_name
+        string accreditation_body
+        string accreditation_type
+        string state
+        boolean is_active
+        date accreditation_expires
+    }
+
+    TRANSCRIPT ||--|| EXTRACTED_DATA : "has one"
+    TRANSCRIPT ||--o{ VERIFICATION_FLAG : "generates"
+    TRANSCRIPT ||--o{ STAFF_REVIEW : "receives"
+    TRANSCRIPT ||--o{ AUDIT_LOG : "tracked by"
+    VERIFICATION_FLAG ||--o| STAFF_REVIEW : "resolved by"
+    FLAGGING_RULE ||--o{ VERIFICATION_FLAG : "produces"

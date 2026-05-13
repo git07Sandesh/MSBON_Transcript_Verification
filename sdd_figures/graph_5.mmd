@@ -1,0 +1,30 @@
+graph TB
+    APP["App\nReact Router v6"]
+
+    APP --> LAYOUT["AppLayout\nHeader + Nav + Outlet"]
+
+    LAYOUT --> UP["UploadPage\n/upload"]
+    LAYOUT --> TLP["TranscriptListPage\n/transcripts"]
+    LAYOUT --> VP["VerificationPage\n/transcripts/:id"]
+    LAYOUT --> ALP["AuditLogPage\n/audit"]
+    LAYOUT --> PGP["ProgramsPage\n/programs"]
+
+    UP --> FD["FileDropzone"]
+    UP --> PB["UploadProgressBar"]
+
+    VP --> TS2["TranscriptSummary"]
+    VP --> ECB["ExtractionConfidenceBadge"]
+    VP --> FL["FlagList"]
+
+    FL --> FI["FlagItem"]
+    FI --> SB["SeverityBadge\nHIGH / MED / LOW"]
+    FI --> RE2["RuleExplanation\nrule ID + source excerpt"]
+    FI --> RF["ReviewForm"]
+
+    RF --> DB2["DecisionButtons\nConfirm / Override / Needs Info"]
+    RF --> AI["AnnotationInput"]
+    RF --> ORI["OverrideReasonInput\nRequired on Override"]
+
+    ALP --> ALF["AuditLogFilters"]
+    ALP --> ALT["AuditLogTable"]
+    ALP --> EB["ExportButton CSV/JSON"]

@@ -1,0 +1,35 @@
+flowchart TD
+    A["👤 Staff\nUploads PDF / Image"] -->|"multipart/form-data"| B["FastAPI\nPOST /transcripts/upload"]
+    B -->|"Save UUID-named file"| C["📁 File System\n./uploads/{uuid}.pdf"]
+    B -->|"INSERT status=UPLOADED"| D[("SQLite\ntranscripts")]
+
+    B -->|"POST /transcripts/id/process"| E["TranscriptService\nprocess_transcript()"]
+    E --> F["ExtractionService\nextract()"]
+    F -->|"Text-based PDF"| G["pdfplumber\nextract_text()"]
+    F -->|"Scanned / Image"| H["pytesseract + Pillow\nOCR extract_text()"]
+    G & H -->|"raw_text"| I["LLMAdapter\nextract_structured_data()"]
+    I -->|"Prompt + raw_text\nHTTPS"| J["☁️ Google Gemini API"]
+    J -->|"Structured JSON response"| I
+    I -->|"ExtractedData dict"| K["INSERT extracted_data"]
+    K --> D2[("SQLite\nextracted_data")]
+
+    E --> L["VerificationService\nverify()"]
+    L --> M["RuleEngine\nevaluate()"]
+    M -->|"Check graduation"| N["GraduationConfirmationRule"]
+    M -->|"Check accreditation"| O["AccreditationRule"]
+    M -->|"Check courses"| P["CourseCompletionRule"]
+    M -->|"Check fraud signals"| Q["FraudIndicatorRule"]
+    M -->|"Check formatting"| R["FormattingConsistencyRule"]
+    O -->|"Lookup institution"| S[("SQLite\naccredited_programs")]
+
+    M -->|"List of VerificationFlags"| T["INSERT verification_flags"]
+    T --> D3[("SQLite\nverification_flags")]
+    L -->|"log VERIFY action"| U[("SQLite\naudit_logs")]
+
+    D3 -->|"Flags + extracted data"| V["API JSON Response"]
+    V --> W["React Frontend\nFlag Review UI"]
+
+    W -->|"Confirm / Override + annotation"| X["POST /reviews"]
+    X --> Y["ReviewService\nsubmit_review()"]
+    Y --> Z[("SQLite\nstaff_reviews")]
+    Y -->|"log REVIEW_FLAG or OVERRIDE_FLAG"| U

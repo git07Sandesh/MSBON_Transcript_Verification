@@ -1,0 +1,33 @@
+sequenceDiagram
+    actor Staff
+    participant FE as React Frontend
+    participant API as FastAPI
+    participant RS as ReviewService
+    participant AuditSvc as AuditService
+    participant DB as SQLite
+
+    Staff->>FE: View transcript flags
+    FE->>API: GET /transcripts/{id}
+    API-->>FE: { flags[] }
+    FE-->>Staff: Render FlagList
+
+    Staff->>FE: Click Override on a flag
+    FE-->>Staff: Show override_reason input (required)
+    Staff->>FE: Enter override reason + annotation
+    FE->>API: POST /reviews { flag_id, decision: OVERRIDDEN, override_reason, annotation }
+
+    API->>RS: submit_review(...)
+    RS->>RS: _validate_override(decision, override_reason)
+
+    alt Validation fails — override_reason missing
+        RS-->>API: Raise OverrideReasonRequiredError
+        API-->>FE: 422 OVERRIDE_REASON_REQUIRED
+        FE-->>Staff: Show validation error
+    else Validation passes
+        RS->>DB: INSERT staff_review
+        RS->>AuditSvc: log(OVERRIDE_FLAG, { flag_id, decision, reviewer_id })
+        AuditSvc->>DB: INSERT audit_log
+        RS-->>API: StaffReview
+        API-->>FE: 201 { review id, decision, reviewed_at }
+        FE-->>Staff: Flag marked as overridden, UI updated
+    end

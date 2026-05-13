@@ -1,0 +1,52 @@
+classDiagram
+    class TranscriptService {
+        -ExtractionService extraction_svc
+        -VerificationService verification_svc
+        -AuditService audit_svc
+        -TranscriptRepository transcript_repo
+        +upload_transcript(file, uploaded_by) TranscriptDTO
+        +get_transcript(transcript_id) TranscriptDTO
+        +process_transcript(transcript_id) VerificationResultDTO
+        +list_transcripts(filters) list~TranscriptDTO~
+        -_validate_file(file) None
+        -_save_file(file) str
+    }
+
+    class ExtractionService {
+        -DocumentExtractor doc_extractor
+        -LLMAdapter llm_adapter
+        +extract(transcript_id, file_path, file_type) ExtractedData
+        -_extract_text(file_path, file_type) str
+        -_build_extracted_data(raw_dict, raw_text) ExtractedData
+    }
+
+    class VerificationService {
+        -RuleEngine rule_engine
+        -TranscriptRepository transcript_repo
+        -AuditService audit_svc
+        +verify(transcript_id, extracted_data) VerificationResultDTO
+        -_persist_flags(transcript_id, flags) None
+        -_determine_status(flags) TranscriptStatus
+    }
+
+    class ReviewService {
+        -ReviewRepository review_repo
+        -AuditService audit_svc
+        +submit_review(flag_id, reviewer_id, decision, annotation, override_reason) StaffReview
+        +get_reviews(transcript_id) list~StaffReview~
+        -_validate_override(decision, override_reason) None
+    }
+
+    class AuditService {
+        -AuditRepository audit_repo
+        +log(transcript_id, actor_id, action_type, detail, outcome) AuditLog
+        +get_logs(transcript_id) list~AuditLog~
+        +get_all_logs(filters) list~AuditLog~
+        +export_logs(transcript_id, format) bytes
+    }
+
+    TranscriptService --> ExtractionService
+    TranscriptService --> VerificationService
+    TranscriptService --> AuditService
+    VerificationService --> AuditService
+    ReviewService --> AuditService

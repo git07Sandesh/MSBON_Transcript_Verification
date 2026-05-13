@@ -1,0 +1,19 @@
+graph TB
+    subgraph L1["Presentation Layer"]
+        UI["React 18 SPA · Vite · TypeScript · Tailwind CSS"]
+    end
+    subgraph L2["API Layer"]
+        API["FastAPI REST Controllers · Pydantic Validation · Uvicorn ASGI"]
+    end
+    subgraph L3["Service Layer"]
+        SVC["Business Logic Orchestration · Use-Case Handlers"]
+    end
+    subgraph L4["Domain + Infrastructure Layer"]
+        DOM["Rule Engine · Domain Models"]
+        INF["Repositories · LLM Adapter · Document Extractor"]
+    end
+    subgraph L5["Data Layer"]
+        DATA["SQLite · SQLAlchemy ORM · Alembic Migrations"]
+    end
+
+    L1 --> L2 --> L3 --> L4 --> L5

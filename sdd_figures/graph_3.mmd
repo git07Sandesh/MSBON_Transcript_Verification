@@ -1,0 +1,30 @@
+graph TB
+    subgraph browser["Browser — Staff Machine"]
+        SPA["React SPA\n────────────────\nVite + TypeScript\nReact Query\nZustand\nTailwind CSS\nPort: 5173"]
+    end
+
+    subgraph server["Application Server — Local / Private Network"]
+        direction TB
+        FAPI["FastAPI Backend\n────────────────\nPython 3.11+\nUvicorn ASGI\nPort: 8000"]
+        RE["Rule Engine\n────────────────\nPure Python\nStateless"]
+        DE["Document Extractor\n────────────────\npdfplumber\npytesseract\nPillow"]
+        LLM["LLM Adapter\n────────────────\ngoogle-generativeai\nPrompt Templates"]
+    end
+
+    subgraph datastores["Local Data Stores"]
+        DB[("SQLite DB\n────────────────\nSQLAlchemy ORM\nAlembic Migrations")]
+        FS["File System\n────────────────\n./uploads/ (temp)\n./logs/"]
+    end
+
+    subgraph gemini["External — HTTPS"]
+        GAPI["Google Gemini API\n────────────────\ngenerativelanguage\n.googleapis.com\ngemini-2.0-flash"]
+    end
+
+    SPA -->|"REST / JSON\nHTTP"| FAPI
+    FAPI --> RE
+    FAPI --> DE
+    FAPI --> LLM
+    LLM -->|"HTTPS\nAPI Key Auth"| GAPI
+    FAPI <-->|"SQLAlchemy ORM"| DB
+    FAPI <-->|"File I/O"| FS
+    DE <-->|"Read files"| FS

@@ -1,0 +1,39 @@
+sequenceDiagram
+    actor User
+    participant SPA as React SPA
+    participant API as FastAPI
+    participant Auth as auth.login
+    participant Dep as verify_token
+    participant Perm as require_permission
+    participant Route as Protected route
+
+    User->>SPA: enters staff_id + password
+    SPA->>API: POST /api/v1/auth/login {staff_id, password}
+    API->>Auth: validate credentials
+    alt invalid
+        Auth-->>API: 401 UNAUTHORIZED
+        API-->>SPA: error envelope
+    else valid
+        Auth->>Auth: jwt.encode({sub, role, exp}, JWT_SECRET)
+        Auth-->>API: {access_token, expires_at}
+        API-->>SPA: 200 + token
+    end
+
+    Note over SPA: token kept in memory<br/>(no localStorage)
+
+    SPA->>API: GET /api/v1/transcripts<br/>Authorization: Bearer <token>
+    API->>Dep: verify_token()
+    Dep->>Dep: jwt.decode(token, JWT_SECRET)
+    alt expired or tampered
+        Dep-->>API: 401 UNAUTHORIZED
+    else valid
+        Dep-->>API: {sub, role, exp}
+        API->>Perm: require_permission(VIEW_TRANSCRIPTS)
+        Perm->>Perm: role ∈ ROLE_PERMISSIONS?
+        alt insufficient
+            Perm-->>API: 403 FORBIDDEN
+        else allowed
+            API->>Route: handler executes
+            Route-->>SPA: 200 + payload
+        end
+    end

@@ -1,0 +1,13 @@
+flowchart TD
+    A["LLMAdapter.extract_structured_data()"] --> B["Attempt 1\nPOST to Gemini API"]
+    B -->|"Success"| C["_parse_response()"]
+    C -->|"Valid JSON + Schema OK"| D["Return ExtractedData dict"]
+    C -->|"Invalid JSON or Schema mismatch"| E{"Attempt < 3?"}
+    B -->|"Rate limit / Transient error"| F["Wait backoff: 1s → 2s → 4s"]
+    F --> E
+    E -->|"Yes"| G["Retry next attempt"]
+    G --> B
+    E -->|"No — 3 attempts exhausted"| H["Raise LLMUnavailableError"]
+    H --> I["transcript status = EXTRACTION_FAILED"]
+    I --> J["AuditService.log(EXTRACT, FAILURE)"]
+    J --> K["API returns 503\nStaff prompted to retry manually"]

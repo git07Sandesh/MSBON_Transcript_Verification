@@ -1,0 +1,24 @@
+graph TB
+    subgraph users["Users"]
+        Staff["👤 MSBON Staff\nPrimary User"]
+        Admin["👤 System Admin\nRule Configuration"]
+    end
+
+    subgraph system["MSBON Transcript Verification System"]
+        App["🖥️ Web Application\nReact SPA + FastAPI Backend"]
+    end
+
+    subgraph external["External Services"]
+        Gemini["☁️ Google Gemini API\ngemini-2.0-flash"]
+    end
+
+    subgraph storage["Local Data Stores"]
+        DB[("🗄️ SQLite Database")]
+        FS["📁 File System\n./uploads/"]
+    end
+
+    Staff -->|"Upload transcript\nReview flags\nAnnotate decisions"| App
+    Admin -->|"Manage rules\nManage accredited programs"| App
+    App -->|"Send transcript text\nReceive structured JSON\nHTTPS"| Gemini
+    App <-->|"Read / Write"| DB
+    App <-->|"Store / Retrieve files"| FS

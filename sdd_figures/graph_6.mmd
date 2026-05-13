@@ -1,0 +1,26 @@
+graph TB
+    subgraph workstation["Staff Workstation — macOS / Windows / Linux"]
+        subgraph termA["Terminal A"]
+            VITE["Vite Dev Server\nnpm run dev\nlocalhost:5173\nProxy /api → :8000"]
+        end
+        subgraph termB["Terminal B"]
+            UVCN["Uvicorn ASGI\nuvicorn app.main:app --reload\nlocalhost:8000"]
+        end
+        subgraph fs["Local File System — /Desktop/CSC 424/msbon-app/"]
+            DB3[("data/msbon.db\nSQLite")]
+            UPL["uploads/\nTemp transcripts"]
+            LOG["logs/app.log"]
+        end
+        BROWSER["Staff Browser\nhttp://localhost:5173"]
+    end
+
+    subgraph ext["External — HTTPS"]
+        GAPI2["generativelanguage.googleapis.com\nGoogle Gemini API"]
+    end
+
+    BROWSER --> VITE
+    VITE -->|"Proxy /api"| UVCN
+    UVCN <--> DB3
+    UVCN <--> UPL
+    UVCN --> LOG
+    UVCN -->|"HTTPS"| GAPI2

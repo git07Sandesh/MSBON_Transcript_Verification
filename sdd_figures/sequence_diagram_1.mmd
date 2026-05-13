@@ -1,0 +1,60 @@
+sequenceDiagram
+    actor Staff
+    participant FE as React Frontend
+    participant API as FastAPI
+    participant TS as TranscriptService
+    participant ES as ExtractionService
+    participant DE as DocumentExtractor
+    participant LLM as LLMAdapter
+    participant Gemini as Google Gemini API
+    participant VS as VerificationService
+    participant RE as RuleEngine
+    participant DB as SQLite
+    participant AuditSvc as AuditService
+
+    Staff->>FE: Select and upload PDF
+    FE->>API: POST /transcripts/upload (multipart)
+    API->>TS: upload_transcript(file, staff_id)
+    TS->>TS: _validate_file()
+    TS->>TS: _save_file() → UUID path
+    TS->>DB: INSERT transcript (status=UPLOADED)
+    TS->>AuditSvc: log(UPLOAD, SUCCESS)
+    AuditSvc->>DB: INSERT audit_log
+    API-->>FE: 201 { id, status: UPLOADED }
+    FE-->>Staff: Show "Upload successful"
+
+    Staff->>FE: Click "Verify Transcript"
+    FE->>API: POST /transcripts/{id}/process
+    API->>TS: process_transcript(id)
+    TS->>DB: UPDATE status = EXTRACTING
+
+    TS->>ES: extract(id, file_path, file_type)
+    ES->>DE: extract_text(file_path, file_type)
+    DE->>DE: pdfplumber or pytesseract
+    DE-->>ES: raw_text
+
+    ES->>LLM: extract_structured_data(raw_text)
+    LLM->>Gemini: POST /generateContent (HTTPS)
+    Gemini-->>LLM: Structured JSON
+    LLM->>LLM: _parse_response() + _validate_schema()
+    LLM-->>ES: ExtractedData dict
+
+    ES->>DB: INSERT extracted_data
+    ES->>DB: UPDATE status = EXTRACTED
+    ES-->>TS: ExtractedData
+
+    TS->>VS: verify(id, extracted_data)
+    VS->>DB: UPDATE status = VERIFYING
+    VS->>RE: evaluate(extracted_data)
+    RE->>RE: Run 5 rules in sequence
+    RE->>DB: SELECT accredited_programs (AccreditationRule)
+    RE-->>VS: List[VerificationFlag]
+
+    VS->>DB: INSERT verification_flags (bulk)
+    VS->>DB: UPDATE status = FLAGGED or CLEAR
+    VS->>AuditSvc: log(VERIFY, SUCCESS)
+    AuditSvc->>DB: INSERT audit_log
+    VS-->>TS: VerificationResultDTO
+
+    API-->>FE: 200 { status, extracted_data, flags[] }
+    FE-->>Staff: Display flag review dashboard

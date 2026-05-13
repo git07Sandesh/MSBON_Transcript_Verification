@@ -1,0 +1,99 @@
+classDiagram
+    class Transcript {
+        +String id
+        +String filename
+        +String file_path
+        +FileType file_type
+        +TranscriptStatus status
+        +datetime uploaded_at
+        +datetime processed_at
+        +String uploaded_by
+    }
+
+    class ExtractedData {
+        +String id
+        +String transcript_id
+        +Optional~String~ student_name
+        +Optional~String~ institution_name
+        +Optional~String~ program_name
+        +Optional~DegreeType~ degree_type
+        +Optional~date~ graduation_date
+        +bool graduation_confirmed
+        +list~Course~ courses
+        +String raw_text
+        +float extraction_confidence
+        +datetime extracted_at
+        +String llm_model_used
+    }
+
+    class Course {
+        +String code
+        +String name
+        +String grade
+        +float credits
+        +String semester
+        +String year
+    }
+
+    class VerificationFlag {
+        +String id
+        +String transcript_id
+        +String rule_id
+        +FlagSeverity severity
+        +FlagCategory category
+        +String description
+        +String source_excerpt
+        +String explanation
+        +bool is_fraud_indicator
+        +datetime flagged_at
+    }
+
+    class StaffReview {
+        +String id
+        +String flag_id
+        +String transcript_id
+        +String reviewer_id
+        +ReviewDecision decision
+        +Optional~String~ annotation
+        +datetime reviewed_at
+        +Optional~String~ override_reason
+    }
+
+    class AuditLog {
+        +String id
+        +Optional~String~ transcript_id
+        +String actor_id
+        +AuditActionType action_type
+        +dict action_detail
+        +String outcome
+        +datetime timestamp
+        +Optional~String~ ip_address
+    }
+
+    class FlaggingRule {
+        +String id
+        +String name
+        +FlagCategory category
+        +String description
+        +FlagSeverity severity
+        +bool is_active
+        +dict rule_config
+    }
+
+    class AccreditedProgram {
+        +String id
+        +String institution_name
+        +String program_name
+        +String accreditation_body
+        +String accreditation_type
+        +String state
+        +bool is_active
+        +Optional~date~ accreditation_expires
+    }
+
+    Transcript "1" --> "1" ExtractedData : has one
+    Transcript "1" --> "0..*" VerificationFlag : generates
+    Transcript "1" --> "0..*" AuditLog : tracked by
+    ExtractedData "1" --> "0..*" Course : contains
+    VerificationFlag "1" --> "0..1" StaffReview : resolved by
+    FlaggingRule "1" --> "0..*" VerificationFlag : produces
