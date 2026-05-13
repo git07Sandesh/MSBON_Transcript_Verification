@@ -1,0 +1,17 @@
+SOME NURSING SCHOOL
+
+TRANSCRIPT (Poorly Formatted)
+
+[Student name field left blank]
+Student ID: 5678901
+
+Program: Nursing
+Degree Conferred: Yes
+
+Courses:
+Course A    Grade: A    Date: 05/15/2021     Credits: 3
+Course B    Grade: 95   Date: 2021-09-01     Credits: 4
+Course C    Grade: 3.8  Date: January 2022   Credits: 3
+Course D    Grade: B+   Date: 12-01-2022     Credits: 2
+
+Total Credits: 12

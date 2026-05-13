@@ -1,0 +1,23 @@
+DELTA STATE UNIVERSITY
+Office of the Registrar
+
+TRANSCRIPT
+
+Student Name: Partial Courses Student
+Student ID: 4567890
+
+Program: Bachelor of Science in Nursing
+Degree Conferred: Bachelor of Science in Nursing
+Date of Enrollment: August 2020
+Graduation Date: May 2022
+
+COURSES COMPLETED:
+
+NUR 301 - Fundamentals of Nursing  Credits: 3.0  Grade: C
+NUR 501 - Advanced Nursing Theory  Credits: 3.0  Grade: B
+
+[Missing: Medical-Surgical, Pharmacology, Mental Health, Maternal, Pediatric courses]
+
+Total Credits: 6.0
+
+Accreditation: CCNE
