@@ -18,7 +18,7 @@ const SIZE_CLASS: Record<Size, string> = {
 };
 
 // Fraunces optical-size axis: hero sizes use opsz 144, others use opsz 9.
-// Weight: 300 (light) for the two largest sizes — the brief's "light paradox"
+// Weight: 300 (light) for the two largest sizes, the brief's "light paradox"
 // (huge but delicate). 400 for the smaller display sizes.
 const SIZE_VARIATIONS: Record<Size, string> = {
   "2xl": '"opsz" 144, "wght" 300',

@@ -1,4 +1,4 @@
-/* Three-star editorial break ⁂ — used between major prose sections.
+/* Three-star editorial break ⁂, used between major prose sections.
  * Renders as semantic <hr> with aria-label for screen readers.
  */
 interface Props {

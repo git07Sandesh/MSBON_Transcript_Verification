@@ -1,6 +1,6 @@
-/* Editorial design system — MSBON Verification
+/* Editorial design system, MSBON Verification
  * Three colours (cream, charcoal, terracotta), two typefaces (Fraunces, DM Sans).
- * Self-hosted variable fonts via @fontsource — no CDN calls.
+ * Self-hosted variable fonts via @fontsource, no CDN calls.
  */
 @import "@fontsource-variable/fraunces/wght.css";
 @import "@fontsource-variable/fraunces/wght-italic.css";
@@ -11,14 +11,14 @@
 @tailwind utilities;
 
 :root {
-  --cream:            #F7F3EE;
-  --cream-dark:       #EDE7DC;
+  --cream:            #F5F0E6;
+  --cream-dark:       #EBE5D6;
   --charcoal:         #1E1E1E;
   --charcoal-muted:   #6B6560;
   --charcoal-faint:   rgba(30, 30, 30, 0.08);
-  --terracotta:       #B84A32;
-  --terracotta-dark:  #9F3E2A;
-  --terracotta-light: rgba(184, 74, 50, 0.10);
+  --terracotta:       #1A3A52;
+  --terracotta-dark:  #0F2638;
+  --terracotta-light: rgba(26, 58, 82, 0.10);
 
   font-family: "DM Sans Variable", system-ui, -apple-system, sans-serif;
   font-size: 16px;
@@ -81,7 +81,7 @@ p { margin: 0; }
   .opsz-body { font-variation-settings: "opsz" 9; }
   .opsz-hero { font-variation-settings: "opsz" 144; }
 
-  /* Hover underline that grows from the left — used by nav links */
+  /* Hover underline that grows from the left, used by nav links */
   .nav-underline {
     position: relative;
   }

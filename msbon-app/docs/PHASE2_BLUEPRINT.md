@@ -3,7 +3,7 @@
 **Project:** MSBON Fraud-Sensitive Transcript Verification System
 **Blueprint Date:** 2026-03-29
 **Architect:** Principal Software Architect (Synthesized from 6-Domain Parallel Audit)
-**Input:** Phase 1 Full Audit Report — 153 findings across 6 domains
+**Input:** Phase 1 Full Audit Report, 153 findings across 6 domains
 
 ---
 
@@ -370,7 +370,7 @@ Finding UX-026 (UI/UX - browse span not keyboard-focusable) → RELATED TO → F
 
 ## Section 3: Systemic Themes
 
-The following themes were identified by cross-referencing all 153 findings across the six domain audit reports (Frontend, Backend, Database, Security, UI/UX, DevOps). Each theme represents a problem whose root cause is architectural or process-level — not isolated to a single file or developer error — and whose resolution therefore requires a single coordinated architectural decision rather than per-finding patches.
+The following themes were identified by cross-referencing all 153 findings across the six domain audit reports (Frontend, Backend, Database, Security, UI/UX, DevOps). Each theme represents a problem whose root cause is architectural or process-level, not isolated to a single file or developer error, and whose resolution therefore requires a single coordinated architectural decision rather than per-finding patches.
 
 ---
 
@@ -388,7 +388,7 @@ The following themes were identified by cross-referencing all 153 findings acros
 
 **Findings:** BE-001, BE-020, DO-004, DO-005, FE-030, FE-026, DB-022, DB-025, SEC-005, SEC-012
 
-**Root Cause Hypothesis:** PoC development favored fast iteration over configuration hygiene. Every value that needed to differ between environments — API keys, database URLs, CORS origins, timeout durations, seed data — was hardcoded directly into source files, config classes with insecure defaults, `.env` files containing real credentials, and Python seeding blocks. The absence of a startup validation contract meant these problems accumulated silently and invisibly.
+**Root Cause Hypothesis:** PoC development favored fast iteration over configuration hygiene. Every value that needed to differ between environments, API keys, database URLs, CORS origins, timeout durations, seed data, was hardcoded directly into source files, config classes with insecure defaults, `.env` files containing real credentials, and Python seeding blocks. The absence of a startup validation contract meant these problems accumulated silently and invisibly.
 
 **Holistic Fix:** Centralize all configuration in a single Pydantic `Settings` class with `Field(...)` (required, no default) for every secret and environment-specific value. A `field_validator` runs at process startup and raises `ValueError` immediately for any missing or placeholder value. A committed `.env.example` documents every required variable with safe placeholder values. Real secrets are injected at runtime via a secrets manager (GCP Secret Manager, AWS Secrets Manager, or CI/CD environment injection) and never stored on disk in any form. All hardcoded magic numbers in application code are replaced with named constants referencing `settings.*`.
 
@@ -398,13 +398,13 @@ The following themes were identified by cross-referencing all 153 findings acros
 
 **Findings:** BE-003, DB-007, DB-008, DB-009
 
-**Root Cause Hypothesis:** Service layer methods were written procedurally, one database operation at a time, without a transaction coordination pattern. Because each step (`update_status`, `save extracted_data`, `audit.log`, `update_status` again) was authored as a sequential independent call, each carries its own implicit commit boundary. No developer established a convention requiring multi-step mutations to share a single transaction scope, so partial failures leave the database in intermediate inconsistent states — for example, a transcript flagged as EXTRACTING with no extracted data record, or a review saved without the transcript status being advanced.
+**Root Cause Hypothesis:** Service layer methods were written procedurally, one database operation at a time, without a transaction coordination pattern. Because each step (`update_status`, `save extracted_data`, `audit.log`, `update_status` again) was authored as a sequential independent call, each carries its own implicit commit boundary. No developer established a convention requiring multi-step mutations to share a single transaction scope, so partial failures leave the database in intermediate inconsistent states, for example, a transcript flagged as EXTRACTING with no extracted data record, or a review saved without the transcript status being advanced.
 
 **Holistic Fix:** Adopt the Unit-of-Work pattern. Every service method that touches more than one table wraps all its repository calls inside `db.begin_nested()`. The outermost commit fires only after all subordinate operations succeed. On any exception, `db.rollback()` reverts the entire logical unit. Audit log writes that must survive a failed transaction are moved to an after-commit hook or a separate compensating write rather than being silently skipped.
 
 ---
 
-### Theme 4: No Observability — Logging, Metrics, or Error Tracking
+### Theme 4: No Observability, Logging, Metrics, or Error Tracking
 
 **Findings:** BE-018, DO-010, DO-011, DO-012, FE-032, SEC-019
 
@@ -420,11 +420,11 @@ The following themes were identified by cross-referencing all 153 findings acros
 
 **Root Cause Hypothesis:** No error contract was defined between the database layer, service layer, API layer, and frontend. Each layer invented its own error shape independently: Python services raise bare `Exception("message")`, route handlers return bare `HTTPException` with raw detail strings, Axios catch blocks use `catch (err: any)` with fragile optional chaining, and UI components render ad-hoc red divs with no retry path. Because the shapes are all different, no layer can reliably parse errors from layers below it.
 
-**Holistic Fix:** Define and enforce a single error envelope end-to-end: `{ "success": false, "error": { "code": "SNAKE_CASE_ERROR_CODE", "message": "Human-readable description", "details": {} } }`. Backend services raise typed domain exceptions (`TranscriptNotFoundError`, `ExtractionFailedError`, `ReviewSubmissionError`, `UnauthorizedError`, `ForbiddenError`) defined in a central `exceptions.py`. A FastAPI global exception handler converts all domain exceptions to the envelope. Frontend Axios response interceptors receive the envelope and pass `error.code` and `error.message` to React Query's `onError` callbacks. A reusable `ErrorAlert` component renders `error.message` with an optional retry button. TypeScript never uses `catch (err: any)` — `axios.isAxiosError()` type guards are used exclusively.
+**Holistic Fix:** Define and enforce a single error envelope end-to-end: `{ "success": false, "error": { "code": "SNAKE_CASE_ERROR_CODE", "message": "Human-readable description", "details": {} } }`. Backend services raise typed domain exceptions (`TranscriptNotFoundError`, `ExtractionFailedError`, `ReviewSubmissionError`, `UnauthorizedError`, `ForbiddenError`) defined in a central `exceptions.py`. A FastAPI global exception handler converts all domain exceptions to the envelope. Frontend Axios response interceptors receive the envelope and pass `error.code` and `error.message` to React Query's `onError` callbacks. A reusable `ErrorAlert` component renders `error.message` with an optional retry button. TypeScript never uses `catch (err: any)`, `axios.isAxiosError()` type guards are used exclusively.
 
 ---
 
-### Theme 6: No Design System — Hardcoded Colors, Inconsistent Spacing, Duplicate Components
+### Theme 6: No Design System, Hardcoded Colors, Inconsistent Spacing, Duplicate Components
 
 **Findings:** UX-001, UX-002, UX-003, UX-004, UX-005, FE-019, FE-020, FE-021
 
@@ -468,15 +468,15 @@ The following themes were identified by cross-referencing all 153 findings acros
 
 **Findings:** DB-010, SEC-010, SEC-008, SEC-022, BE-020, DO-004
 
-**Root Cause Hypothesis:** The PoC was built without healthcare credential regulatory requirements (HIPAA, GDPR) in scope. Student PII — including names and the full text of transcripts, which may contain social security numbers, dates of birth, addresses, and other sensitive identifiers — is stored as plaintext in an unencrypted SQLite file. A real Google API key is stored in a `.env` file on disk. Audit logs capture raw metadata about processed content. No threat model was written that would have flagged these storage decisions as non-compliant before the system was built.
+**Root Cause Hypothesis:** The PoC was built without healthcare credential regulatory requirements (HIPAA, GDPR) in scope. Student PII, including names and the full text of transcripts, which may contain social security numbers, dates of birth, addresses, and other sensitive identifiers, is stored as plaintext in an unencrypted SQLite file. A real Google API key is stored in a `.env` file on disk. Audit logs capture raw metadata about processed content. No threat model was written that would have flagged these storage decisions as non-compliant before the system was built.
 
-**Holistic Fix:** Implement field-level encryption for all PII columns in `ExtractedData` (`student_name`, `raw_text`) using `sqlalchemy-utils EncryptedType` backed by a Fernet key stored in the secrets manager — never in source or config files. Rotate the exposed Gemini API key immediately and move all secrets to runtime injection. Sanitize audit log entries to log events (action type, outcome, actor) rather than data content (text lengths, filenames, model names). For production, migrate from SQLite to PostgreSQL with `sslmode=require` to provide encryption in transit and at rest at the database engine level. All of these changes are implemented as Alembic migrations and validated in the CI `migrate` gate.
+**Holistic Fix:** Implement field-level encryption for all PII columns in `ExtractedData` (`student_name`, `raw_text`) using `sqlalchemy-utils EncryptedType` backed by a Fernet key stored in the secrets manager, never in source or config files. Rotate the exposed Gemini API key immediately and move all secrets to runtime injection. Sanitize audit log entries to log events (action type, outcome, actor) rather than data content (text lengths, filenames, model names). For production, migrate from SQLite to PostgreSQL with `sslmode=require` to provide encryption in transit and at rest at the database engine level. All of these changes are implemented as Alembic migrations and validated in the CI `migrate` gate.
 
 ---
 
 ## Section 4: Architectural Decisions
 
-The following ten decisions are binding constraints on all Phase 3 implementation work. Every agent — backend, frontend, database, security, UI/UX, DevOps — must read and comply with every decision before writing any code. Where a decision conflicts with existing code, the decision takes precedence and the existing code must be updated.
+The following ten decisions are binding constraints on all Phase 3 implementation work. Every agent, backend, frontend, database, security, UI/UX, DevOps, must read and comply with every decision before writing any code. Where a decision conflicts with existing code, the decision takes precedence and the existing code must be updated.
 
 ---
 
@@ -506,11 +506,11 @@ The following ten decisions are binding constraints on all Phase 3 implementatio
 
 ### Decision 3: Backend Layer Architecture
 
-**Decision:** A strict four-layer architecture is enforced in the backend with no cross-layer imports permitted: (1) API Layer (`routers/`, `schemas/`) owns route definitions, request/response schemas, and FastAPI dependency injection — it imports only from the Service Layer; (2) Service Layer (`services/`) owns all business logic and orchestrates operations — it imports only from the Repository Layer and Infrastructure Layer; (3) Repository Layer (`repositories/`) owns all database query and persistence logic — it imports only SQLAlchemy models and the database session; (4) Infrastructure Layer (`infrastructure/`) owns all external service adapters (LLM, file system, email) — it imports only from configuration. Each layer imports only the layer directly below it.
+**Decision:** A strict four-layer architecture is enforced in the backend with no cross-layer imports permitted: (1) API Layer (`routers/`, `schemas/`) owns route definitions, request/response schemas, and FastAPI dependency injection, it imports only from the Service Layer; (2) Service Layer (`services/`) owns all business logic and orchestrates operations, it imports only from the Repository Layer and Infrastructure Layer; (3) Repository Layer (`repositories/`) owns all database query and persistence logic, it imports only SQLAlchemy models and the database session; (4) Infrastructure Layer (`infrastructure/`) owns all external service adapters (LLM, file system, email), it imports only from configuration. Each layer imports only the layer directly below it.
 
 **Rationale:** BE-005, BE-014, and BE-015 show authentication and identity resolution logic placed directly in route handler bodies instead of dependency middleware. BE-006 and BE-017 show missing service abstractions. DB-007, DB-008, and DB-009 show service layer code making direct multi-step database commits without a repository mediation layer enforcing transaction discipline.
 
-**Implications:** All authentication checks must be implemented as FastAPI `Depends()` middleware functions in the API Layer — never inside a route handler body. All SQLAlchemy ORM query construction must live in Repository classes. All calls to `LLMAdapter`, file system operations, and external services must go through Infrastructure Layer adapters. Service classes must not import FastAPI `Request` objects. Repository classes must not contain if/else business logic.
+**Implications:** All authentication checks must be implemented as FastAPI `Depends()` middleware functions in the API Layer, never inside a route handler body. All SQLAlchemy ORM query construction must live in Repository classes. All calls to `LLMAdapter`, file system operations, and external services must go through Infrastructure Layer adapters. Service classes must not import FastAPI `Request` objects. Repository classes must not contain if/else business logic.
 
 **Constraints:** Route handlers must not import SQLAlchemy model classes directly. Service classes must not import `fastapi.Request` or `fastapi.Response`. Repository classes must not import service classes. Infrastructure adapters must not import repository classes. Circular imports between any two layers are a build-time error.
 
@@ -518,7 +518,7 @@ The following ten decisions are binding constraints on all Phase 3 implementatio
 
 ### Decision 4: API Contract Standards
 
-**Decision:** Every API response — success or failure — uses a unified JSON envelope. Success: `{ "success": true, "data": { ... } }`. Failure: `{ "success": false, "error": { "code": "SNAKE_CASE_ERROR_CODE", "message": "Human-readable description safe for display", "details": {} } }`. All routes are versioned under `/api/v1/`. HTTP status codes are assigned by meaning: 200 for success, 201 for resource creation, 202 for accepted async work, 401 for authentication failure, 403 for authorization failure, 404 for resource not found, 422 for Pydantic validation errors (automatic), 500 for unhandled server exceptions only. Error detail strings from internal exception messages are never included in production responses.
+**Decision:** Every API response, success or failure, uses a unified JSON envelope. Success: `{ "success": true, "data": { ... } }`. Failure: `{ "success": false, "error": { "code": "SNAKE_CASE_ERROR_CODE", "message": "Human-readable description safe for display", "details": {} } }`. All routes are versioned under `/api/v1/`. HTTP status codes are assigned by meaning: 200 for success, 201 for resource creation, 202 for accepted async work, 401 for authentication failure, 403 for authorization failure, 404 for resource not found, 422 for Pydantic validation errors (automatic), 500 for unhandled server exceptions only. Error detail strings from internal exception messages are never included in production responses.
 
 **Rationale:** SEC-021 identifies that `exc.detail` from HTTPException is returned verbatim, leaking internal implementation details to API consumers. FE-002 and FE-003 show frontend code using fragile optional chaining (`err?.response?.data?.error?.message`) that breaks when the shape is inconsistent. UX-008 shows four different error display implementations because no contract defines what shape errors will take.
 
@@ -532,7 +532,7 @@ The following ten decisions are binding constraints on all Phase 3 implementatio
 
 **Decision:** SQLAlchemy ORM with the repository pattern is the exclusive database access mechanism. All database queries are methods on Repository classes that inherit from `BaseRepository`. No raw SQL strings (`text(...)`) are permitted for business queries. No ORM query construction (`db.query(...)`, `db.execute(select(...))`) is permitted outside repository methods. All multi-step write operations use `db.begin_nested()` savepoints to guarantee atomicity. Alembic manages all schema changes; `Base.metadata.create_all()` is removed from all non-test code paths.
 
-**Rationale:** DB-007, DB-008, and DB-009 collectively demonstrate that the three most critical write paths in the application (extraction, verification, review submission) each span multiple separate `db.commit()` calls with no shared transaction boundary, leaving the database in inconsistent states on partial failure. DB-011 shows that `migrations/versions/` is empty despite Alembic being configured — all schema state is managed by `create_all()`, providing no version history and no rollback capability. DB-004 shows an O(n) query built in application code that must be pushed to the SQL layer.
+**Rationale:** DB-007, DB-008, and DB-009 collectively demonstrate that the three most critical write paths in the application (extraction, verification, review submission) each span multiple separate `db.commit()` calls with no shared transaction boundary, leaving the database in inconsistent states on partial failure. DB-011 shows that `migrations/versions/` is empty despite Alembic being configured, all schema state is managed by `create_all()`, providing no version history and no rollback capability. DB-004 shows an O(n) query built in application code that must be pushed to the SQL layer.
 
 **Implications:** DB agents must run `alembic revision --autogenerate -m "initial schema"` to capture the current schema into version control and must provide `downgrade()` implementations for every revision. All new queries introduced during Phase 3 must be added as named methods on the appropriate Repository class. Service agents wrapping multi-step mutations must call `db.begin_nested()` before the first repository call and `db.commit()` only after all calls succeed. The `init_db()` function must call `alembic upgrade head` rather than `create_all()`.
 
@@ -544,15 +544,15 @@ The following ten decisions are binding constraints on all Phase 3 implementatio
 
 **Decision:** JWT-based stateless authentication using `python-jose` is the authentication mechanism. Tokens are issued by a `/api/v1/auth/login` endpoint (stub returning a signed token in Phase 3). Every protected route includes `Depends(verify_token)` in its function signature. The JWT payload carries exactly: `{ "sub": "<staff_id>", "role": "<staff_role>", "exp": <unix_timestamp> }`. Permitted roles are `admin`, `reviewer`, and `viewer`. Role-based access control is implemented as a `require_permission(Permission.X)` callable that wraps `Depends(verify_token)`. Client-supplied identity headers (`X-Staff-ID`, `X-Staff-Role`) are deleted from all route handlers and are never used for authorization decisions.
 
-**Rationale:** BE-005, SEC-001, SEC-002, BE-014, BE-015, and SEC-015 all trace to a single root cause: the complete absence of a real authentication mechanism. SEC-002 demonstrates that the current header-based scheme is trivially bypassed — any HTTP client can set `X-Staff-Role: admin` to gain administrative access. BE-015 shows that `reviewer_id` is taken from a client-supplied body field as a fallback, enabling reviewer identity spoofing. SEC-015 notes that IDOR on transcript URLs is only possible because no authentication exists to enforce ownership.
+**Rationale:** BE-005, SEC-001, SEC-002, BE-014, BE-015, and SEC-015 all trace to a single root cause: the complete absence of a real authentication mechanism. SEC-002 demonstrates that the current header-based scheme is trivially bypassed, any HTTP client can set `X-Staff-Role: admin` to gain administrative access. BE-015 shows that `reviewer_id` is taken from a client-supplied body field as a fallback, enabling reviewer identity spoofing. SEC-015 notes that IDOR on transcript URLs is only possible because no authentication exists to enforce ownership.
 
 **Implications:** Backend agents must add `verify_token` as a dependency to every route currently missing it and must delete all `X-Staff-ID` / `X-Staff-Role` header reads. Frontend agents must store the JWT (in an httpOnly cookie for security, or localStorage as a fallback) and include it as an `Authorization: Bearer <token>` header on every API request via the Axios request interceptor. The Axios response interceptor must handle 401 responses by clearing the stored token and redirecting to the login page. JWT secret must be read from `settings.jwt_secret`.
 
-**Constraints:** `request.headers.get("X-Staff-Role")` and `request.headers.get("X-Staff-ID")` are prohibited in all authorization code paths. JWT tokens must never be stored in `sessionStorage`. The JWT secret value must never appear in source code — it must always be read from `settings.jwt_secret`, which is itself sourced from an environment variable with no default value. Token expiry must be enforced server-side via the `exp` claim; expired tokens must be rejected with HTTP 401.
+**Constraints:** `request.headers.get("X-Staff-Role")` and `request.headers.get("X-Staff-ID")` are prohibited in all authorization code paths. JWT tokens must never be stored in `sessionStorage`. The JWT secret value must never appear in source code, it must always be read from `settings.jwt_secret`, which is itself sourced from an environment variable with no default value. Token expiry must be enforced server-side via the `exp` claim; expired tokens must be rejected with HTTP 401.
 
 ---
 
-### Decision 7: Error Handling Strategy — Full Stack
+### Decision 7: Error Handling Strategy, Full Stack
 
 **Decision:** Errors flow unidirectionally through the following chain: database exception → Repository raises a typed domain exception → Service catches and re-raises with `raise DomainError(...) from exc` to preserve the traceback chain → FastAPI global exception handler on the API Layer converts the domain exception to the standardized JSON envelope → Axios response interceptor on the frontend receives the envelope → React Query `onError` callback updates component state → `ErrorAlert` UI component renders `error.message` to the user. The canonical domain exceptions, defined in `exceptions.py`, are: `TranscriptNotFoundError`, `ExtractionFailedError`, `VerificationFailedError`, `ReviewSubmissionError`, `UnauthorizedError`, and `ForbiddenError`. All exceptions include a machine-readable `code` string and a human-readable `message` string.
 
@@ -560,7 +560,7 @@ The following ten decisions are binding constraints on all Phase 3 implementatio
 
 **Implications:** Backend agents must replace every bare `raise HTTPException(...)` call in service and repository code with an appropriate typed domain exception from `exceptions.py`. The global exception handler in `main.py` is the only place HTTPExceptions are constructed from domain exceptions. Frontend agents must implement the Axios response interceptor that normalizes all error responses to the envelope shape before they reach React Query. UX agents must build the `ErrorAlert` component accepting `error: { code: string; message: string }` and `onRetry?: () => void` props.
 
-**Constraints:** `raise Exception("message")` is prohibited in service and repository code — always raise a typed domain exception. `catch (err: any)` is prohibited in TypeScript — use `axios.isAxiosError(err)` type guards or `err instanceof DomainError` checks. Domain exceptions must never be caught and swallowed silently — they must always propagate to the global handler or be re-raised. `console.error(err)` without structured logging is prohibited in production code paths.
+**Constraints:** `raise Exception("message")` is prohibited in service and repository code, always raise a typed domain exception. `catch (err: any)` is prohibited in TypeScript, use `axios.isAxiosError(err)` type guards or `err instanceof DomainError` checks. Domain exceptions must never be caught and swallowed silently, they must always propagate to the global handler or be re-raised. `console.error(err)` without structured logging is prohibited in production code paths.
 
 ---
 
@@ -568,35 +568,35 @@ The following ten decisions are binding constraints on all Phase 3 implementatio
 
 **Decision:** The backend uses `python-json-logger` writing structured JSON to stdout. Every log entry must include: `timestamp` (ISO 8601), `level`, `service` (module name via `__name__`), `correlation_id` (a UUID injected by request middleware into the request context), and `message`. Sentry SDK (`sentry-sdk`) is initialized in `main.py` using `settings.sentry_dsn` and captures all unhandled exceptions and all background task failures. Prometheus metrics are exposed on a `/metrics` endpoint using `prometheus-client` with the following required metrics: `request_duration_seconds` (histogram, labeled by method and route), `transcripts_processed_total` (counter), `llm_calls_total` (counter, labeled by outcome), `flags_generated_total` (counter). The frontend uses a `src/utils/logger.ts` structured logger that writes to `console.*` in development and is silenced below `error` level in production builds. `console.log()` is prohibited outside the logger utility in any file.
 
-**Rationale:** BE-018 confirms that `log_level: str = "INFO"` is defined in `config.py` but the `logging` module is never imported or configured anywhere in `main.py` or any service. DO-010 and DO-011 confirm there is no centralized logging infrastructure and no error monitoring — background task failures in `_run_pipeline()` fail silently with zero visibility. DO-012 confirms there are no performance metrics. FE-032 confirms the frontend has no logging utility. SEC-019 identifies that default Python logging in production could expose sensitive stack traces.
+**Rationale:** BE-018 confirms that `log_level: str = "INFO"` is defined in `config.py` but the `logging` module is never imported or configured anywhere in `main.py` or any service. DO-010 and DO-011 confirm there is no centralized logging infrastructure and no error monitoring, background task failures in `_run_pipeline()` fail silently with zero visibility. DO-012 confirms there are no performance metrics. FE-032 confirms the frontend has no logging utility. SEC-019 identifies that default Python logging in production could expose sensitive stack traces.
 
-**Implications:** All service classes must obtain a logger via `logger = logging.getLogger(__name__)` — `print()` is prohibited in all service, repository, and infrastructure code. All background task exception handlers must call `sentry_sdk.capture_exception()` before re-raising or swallowing. DevOps agents must configure the `prometheus-client` metrics endpoint and write the `metrics.py` module. The correlation ID middleware must be registered before all route handlers in `main.py`.
+**Implications:** All service classes must obtain a logger via `logger = logging.getLogger(__name__)`, `print()` is prohibited in all service, repository, and infrastructure code. All background task exception handlers must call `sentry_sdk.capture_exception()` before re-raising or swallowing. DevOps agents must configure the `prometheus-client` metrics endpoint and write the `metrics.py` module. The correlation ID middleware must be registered before all route handlers in `main.py`.
 
-**Constraints:** Log entries must never include raw PII — student names, transcript text, SSNs, email addresses, or any field that could identify an individual student. Free-text fields written to logs must be truncated to 200 characters maximum. `print()` is prohibited in all backend production code paths — violations are caught by the `flake8` lint gate. Frontend `console.log()` calls outside `logger.ts` are caught by the ESLint `no-console` rule configured in the lint gate.
+**Constraints:** Log entries must never include raw PII, student names, transcript text, SSNs, email addresses, or any field that could identify an individual student. Free-text fields written to logs must be truncated to 200 characters maximum. `print()` is prohibited in all backend production code paths, violations are caught by the `flake8` lint gate. Frontend `console.log()` calls outside `logger.ts` are caught by the ESLint `no-console` rule configured in the lint gate.
 
 ---
 
 ### Decision 9: Testing Strategy
 
-**Decision:** The following test categories are in scope for Phase 3. Unit tests cover all service layer business logic (pytest with `unittest.mock` for repository dependencies) and all frontend custom hooks (Vitest with React Testing Library). Repository query methods are tested with pytest against an in-memory SQLite database. All `ui/` primitive components are tested for accessibility using `jest-axe` assertions. Integration tests cover all API routes using pytest with `httpx.AsyncClient` and a real SQLite test database — each route must have at minimum one happy-path test and one error-path test. The minimum acceptable line coverage is 80% for both backend (enforced by `pytest --cov-fail-under=80`) and frontend (enforced by `vitest --coverage`). End-to-end (E2E / Playwright / Cypress) testing is explicitly out of scope for Phase 3 and is deferred to the backlog.
+**Decision:** The following test categories are in scope for Phase 3. Unit tests cover all service layer business logic (pytest with `unittest.mock` for repository dependencies) and all frontend custom hooks (Vitest with React Testing Library). Repository query methods are tested with pytest against an in-memory SQLite database. All `ui/` primitive components are tested for accessibility using `jest-axe` assertions. Integration tests cover all API routes using pytest with `httpx.AsyncClient` and a real SQLite test database, each route must have at minimum one happy-path test and one error-path test. The minimum acceptable line coverage is 80% for both backend (enforced by `pytest --cov-fail-under=80`) and frontend (enforced by `vitest --coverage`). End-to-end (E2E / Playwright / Cypress) testing is explicitly out of scope for Phase 3 and is deferred to the backlog.
 
 **Rationale:** FE-012 confirms zero test files exist anywhere in the frontend codebase. DO-001 confirms no CI pipeline exists to run any tests. Without a test suite, every systemic fix applied during Phase 3 carries regression risk with no automated verification. The 80% coverage threshold is chosen to enforce meaningful test coverage without mandating 100% coverage of trivial boilerplate code.
 
-**Implications:** Every new function and every new component shipped during Phase 3 must include corresponding tests before the implementing agent's work is considered complete. Backend agents must not mock SQLAlchemy sessions in service layer tests — they must use real in-memory database fixtures so that query correctness is validated. Frontend agents must not use `shallow` rendering — tests must render components fully with React Testing Library to validate accessible DOM output.
+**Implications:** Every new function and every new component shipped during Phase 3 must include corresponding tests before the implementing agent's work is considered complete. Backend agents must not mock SQLAlchemy sessions in service layer tests, they must use real in-memory database fixtures so that query correctness is validated. Frontend agents must not use `shallow` rendering, tests must render components fully with React Testing Library to validate accessible DOM output.
 
-**Constraints:** No mocking of the SQLAlchemy `Session` object in service tests — use a real in-memory SQLite session. E2E testing infrastructure (Playwright, Cypress, Selenium) must not be installed or configured during Phase 3 — any such addition will be reverted. Test files must be co-located with the source file they test (`MyComponent.test.tsx` next to `MyComponent.tsx`, `test_my_service.py` next to `my_service.py`). No test may call external APIs, write to a non-test database, or perform filesystem writes outside a temporary directory fixture.
+**Constraints:** No mocking of the SQLAlchemy `Session` object in service tests, use a real in-memory SQLite session. E2E testing infrastructure (Playwright, Cypress, Selenium) must not be installed or configured during Phase 3, any such addition will be reverted. Test files must be co-located with the source file they test (`MyComponent.test.tsx` next to `MyComponent.tsx`, `test_my_service.py` next to `my_service.py`). No test may call external APIs, write to a non-test database, or perform filesystem writes outside a temporary directory fixture.
 
 ---
 
 ### Decision 10: CI/CD Pipeline Gates
 
-**Decision:** A GitHub Actions pipeline defined in `.github/workflows/ci.yml` enforces five mandatory gates. All five gates must pass for any pull request to be mergeable to `main`. The gates are: (1) `lint` — `flake8` on the backend, `eslint --max-warnings 0` and `tsc --noEmit` on the frontend; (2) `test` — `pytest --cov-fail-under=80` on the backend, `vitest run --coverage` on the frontend; (3) `build` — `docker build` for both the backend and frontend images; (4) `security` — `safety check` on Python dependencies, `npm audit --audit-level=high` on frontend dependencies; (5) `migrate` — `alembic upgrade head` executed against a fresh SQLite test database to validate all migration files are syntactically valid and execute without error. Merging to `main` triggers an automatic staging deployment via `docker-compose up`. Production deployment requires a manual approval gate in the GitHub Actions workflow before execution.
+**Decision:** A GitHub Actions pipeline defined in `.github/workflows/ci.yml` enforces five mandatory gates. All five gates must pass for any pull request to be mergeable to `main`. The gates are: (1) `lint`, `flake8` on the backend, `eslint --max-warnings 0` and `tsc --noEmit` on the frontend; (2) `test`, `pytest --cov-fail-under=80` on the backend, `vitest run --coverage` on the frontend; (3) `build`, `docker build` for both the backend and frontend images; (4) `security`, `safety check` on Python dependencies, `npm audit --audit-level=high` on frontend dependencies; (5) `migrate`, `alembic upgrade head` executed against a fresh SQLite test database to validate all migration files are syntactically valid and execute without error. Merging to `main` triggers an automatic staging deployment via `docker-compose up`. Production deployment requires a manual approval gate in the GitHub Actions workflow before execution.
 
-**Rationale:** DO-001 confirms no CI/CD infrastructure of any kind exists. DO-007 and DO-008 show inconsistent dependency locking between frontend (`^` caret ranges in `package.json`) and backend (pinned `==` in `requirements.txt`), creating reproducibility risk. DB-011 shows that Alembic is configured but has never been used — running migrations in CI ensures every migration is validated before it reaches a real database. All other systemic themes identified in Section 3 ultimately require CI enforcement to prevent regression.
+**Rationale:** DO-001 confirms no CI/CD infrastructure of any kind exists. DO-007 and DO-008 show inconsistent dependency locking between frontend (`^` caret ranges in `package.json`) and backend (pinned `==` in `requirements.txt`), creating reproducibility risk. DB-011 shows that Alembic is configured but has never been used, running migrations in CI ensures every migration is validated before it reaches a real database. All other systemic themes identified in Section 3 ultimately require CI enforcement to prevent regression.
 
 **Implications:** DevOps agents must author `.github/workflows/ci.yml` as the first deliverable of Phase 3, before any other agent begins work, so that subsequent contributions are immediately gated. All agents must ensure their code contributions pass the `lint` and `test` gates locally before opening a pull request. The `migrate` gate implicitly requires that every schema change during Phase 3 is accompanied by an Alembic migration file in the same commit.
 
-**Constraints:** `npm install` must never be used in CI — always `npm ci --frozen-lockfile` to ensure the lockfile is respected. No pull request may be merged with any failing gate — the branch protection rule must be configured to enforce this at the repository level. `alembic upgrade head` must be run before any application deployment in any environment — the deployment script must enforce this ordering. No agent may introduce a skip (`# noqa`, `// eslint-disable`, `--no-verify`) to a lint rule without an accompanying comment explaining the exception and approval from a second reviewer.
+**Constraints:** `npm install` must never be used in CI, always `npm ci --frozen-lockfile` to ensure the lockfile is respected. No pull request may be merged with any failing gate, the branch protection rule must be configured to enforce this at the repository level. `alembic upgrade head` must be run before any application deployment in any environment, the deployment script must enforce this ordering. No agent may introduce a skip (`# noqa`, `// eslint-disable`, `--no-verify`) to a lint rule without an accompanying comment explaining the exception and approval from a second reviewer.
 
 ---
 
@@ -608,7 +608,7 @@ The following ten decisions are binding constraints on all Phase 3 implementatio
 
 ---
 
-## Phase A — Foundation (CRITICAL Findings + Prerequisites)
+## Phase A, Foundation (CRITICAL Findings + Prerequisites)
 
 > Nothing else starts until Phase A is complete.
 > This phase contains ALL 27 CRITICAL findings plus MAJOR findings that are structural prerequisites for everything else.
@@ -729,7 +729,7 @@ The following ten decisions are binding constraints on all Phase 3 implementatio
 - **Complexity:** M
 - **Blocked By:** A-05
 - **Definition of Done:**
-  - `ProgramRepository.find_by_name()` uses a SQL `WHERE` clause with `func.lower().contains()` — no Python-side iteration over a full table scan.
+  - `ProgramRepository.find_by_name()` uses a SQL `WHERE` clause with `func.lower().contains()`, no Python-side iteration over a full table scan.
   - `database.py` configures `NullPool` for SQLite and `QueuePool(pool_size=10, max_overflow=20, pool_recycle=3600, pool_pre_ping=True)` for PostgreSQL, selected at runtime by inspecting `DATABASE_URL`.
   - `Settings` exposes `database_pool_size: int` and `database_max_overflow: int` fields consumed by the engine factory.
 
@@ -841,7 +841,7 @@ The following ten decisions are binding constraints on all Phase 3 implementatio
 
 ---
 
-## Phase B — Architecture (MAJOR Structural Refactoring)
+## Phase B, Architecture (MAJOR Structural Refactoring)
 
 > All Phase A items must be verified complete before Phase B begins.
 > Items within Phase B may be executed in any order that respects the dependency graph shown.
@@ -898,7 +898,7 @@ The following ten decisions are binding constraints on all Phase 3 implementatio
 - **Definition of Done:**
   - A `RuleRegistry` class is implemented with a `@RuleRegistry.register("RULE-ID")` class decorator.
   - Each rule class is decorated individually; the 18-branch `if-elif` chain in `_build_rule()` is replaced by a single `RuleRegistry.lookup(rule_orm.id)` call.
-  - Adding a new rule requires only creating a new class with the decorator — no modifications to `rule_engine.py` core logic.
+  - Adding a new rule requires only creating a new class with the decorator, no modifications to `rule_engine.py` core logic.
   - Existing rules and their behavior are covered by passing tests.
 
 ---
@@ -909,7 +909,7 @@ The following ten decisions are binding constraints on all Phase 3 implementatio
 - **Complexity:** S
 - **Blocked By:** A-07
 - **Definition of Done:**
-  - `_run_pipeline()` accepts only primitive IDs (e.g., `transcript_id: str`) — no ORM objects or request-scope sessions.
+  - `_run_pipeline()` accepts only primitive IDs (e.g., `transcript_id: str`), no ORM objects or request-scope sessions.
   - A fresh `SessionLocal()` is opened as a context manager inside the task body.
   - No shared mutable state from the request scope is accessible within the background task.
 
@@ -1025,7 +1025,7 @@ The following ten decisions are binding constraints on all Phase 3 implementatio
 - **Blocked By:** A-10
 - **Definition of Done:**
   - `Settings` includes an `environment: str` field (e.g., `"development"` or `"production"`).
-  - In production, exception handlers return only `{"message": "..."}` — `exc.detail` is omitted.
+  - In production, exception handlers return only `{"message": "..."}`, `exc.detail` is omitted.
   - In development, `exc.detail` is included in the response body.
   - A unit test verifies the production branch omits internal details.
 
@@ -1054,7 +1054,7 @@ The following ten decisions are binding constraints on all Phase 3 implementatio
 - **Definition of Done:**
   - `Transcript.extracted_data` relationship uses `lazy="joined"` (one-to-one; eager load).
   - `Transcript.flags` and `Transcript.audit_logs` relationships use `lazy="selectin"` (one-to-many; avoids N+1).
-  - Alternatively, repository queries use explicit `joinedload()` / `selectinload()` options — either approach is acceptable as long as the transcript-list endpoint does not execute more than 2 queries for any page size.
+  - Alternatively, repository queries use explicit `joinedload()` / `selectinload()` options, either approach is acceptable as long as the transcript-list endpoint does not execute more than 2 queries for any page size.
 
 ---
 
@@ -1154,13 +1154,13 @@ The following ten decisions are binding constraints on all Phase 3 implementatio
 - **Complexity:** S
 - **Blocked By:** None
 - **Definition of Done:**
-  - `TranscriptListPage.tsx` polling uses `refetchInterval: (data) => ...` — returns `5000` only when at least one item has a processing status; returns `false` otherwise.
+  - `TranscriptListPage.tsx` polling uses `refetchInterval: (data) => ...`, returns `5000` only when at least one item has a processing status; returns `false` otherwise.
   - `VerificationPage.tsx` uses a named `getRefetchInterval(data)` function with an explicit `data?.status` null guard before checking terminal states.
   - Neither page polls when the tab is hidden (use `refetchIntervalInBackground: false`).
 
 ---
 
-#### B-FE-04: Accessibility — ARIA and Keyboard
+#### B-FE-04: Accessibility, ARIA and Keyboard
 - **Finding IDs:** FE-008, FE-009, FE-010, FE-011
 - **Owning Agent:** Frontend
 - **Complexity:** M
@@ -1298,12 +1298,12 @@ The following ten decisions are binding constraints on all Phase 3 implementatio
 - **Blocked By:** B-UX-03
 - **Definition of Done:**
   - A `ProcessingState` component displays the current pipeline step (EXTRACTING, VERIFYING) with a progress indicator and a one-line explanation of what that step does.
-  - A "Last updated X seconds ago — refreshing…" indicator is visible whenever background polling is active.
+  - A "Last updated X seconds ago, refreshing…" indicator is visible whenever background polling is active.
   - The component is applied to both `VerificationPage` and `TranscriptListPage` processing rows.
 
 ---
 
-#### B-UX-07: Accessibility — Focus Management
+#### B-UX-07: Accessibility, Focus Management
 - **Finding IDs:** UX-013, UX-014, UX-019
 - **Owning Agent:** UI/UX
 - **Complexity:** M
@@ -1429,7 +1429,7 @@ The following ten decisions are binding constraints on all Phase 3 implementatio
 
 ---
 
-## Phase C — Quality and Polish (MINOR Findings)
+## Phase C, Quality and Polish (MINOR Findings)
 
 > All Phase B items must be stable before Phase C begins.
 > Items within Phase C may be worked in parallel within each agent stream.
@@ -1842,7 +1842,7 @@ The following ten decisions are binding constraints on all Phase 3 implementatio
 
 ---
 
-#### C-TEST-01: Coverage to 80% — Backend and Frontend
+#### C-TEST-01: Coverage to 80%, Backend and Frontend
 - **Finding IDs:** FE-012 (coverage increase to 80%), BE pytest coverage completion
 - **Owning Agent:** Frontend + Backend
 - **Complexity:** L
@@ -1855,7 +1855,7 @@ The following ten decisions are binding constraints on all Phase 3 implementatio
 
 ---
 
-## Phase D — Deferred (Human Review Required)
+## Phase D, Deferred (Human Review Required)
 
 > The following items require infrastructure decisions or stakeholder approvals that cannot be resolved by engineering alone. They are explicitly excluded from Phases A–C.
 
@@ -1875,7 +1875,7 @@ The following ten decisions are binding constraints on all Phase 3 implementatio
   3. Run `alembic upgrade head` against the new PostgreSQL instance.
   4. Migrate any existing SQLite data using `pgloader` or a one-time ETL script.
   5. Validate all Alembic migrations and integration tests against PostgreSQL.
-  6. No application code changes are required — the codebase is already database-agnostic by this point.
+  6. No application code changes are required, the codebase is already database-agnostic by this point.
 
 ---
 
@@ -1886,7 +1886,7 @@ The following ten decisions are binding constraints on all Phase 3 implementatio
 
 ## Section 6: Phase A Agent Dispatch Briefs
 
-> **Document:** Phase 2 Unified Implementation Blueprint — Section 6
+> **Document:** Phase 2 Unified Implementation Blueprint, Section 6
 > **Project:** MSBON Fraud-Sensitive Transcript Verification System
 > **Phase A Agents:** 6
 > **Date Issued:** 2026-03-29
@@ -1904,9 +1904,9 @@ The following ten decisions are binding constraints on all Phase 3 implementatio
 
 **Context:**
 
-Per **Decision 6 (Auth)** in the Phase 2 architecture document: JWT tokens are issued using `python-jose`. The `verify_token` dependency (using FastAPI `Depends()`) must be applied to every protected route. Token payload shape is `{"sub": staff_id, "role": staff_role, "exp": timestamp}`. Valid roles are `admin`, `reviewer`, and `viewer`. The `X-Staff-ID` and `X-Staff-Role` headers must be removed from all authorization logic — these are not trusted inputs.
+Per **Decision 6 (Auth)** in the Phase 2 architecture document: JWT tokens are issued using `python-jose`. The `verify_token` dependency (using FastAPI `Depends()`) must be applied to every protected route. Token payload shape is `{"sub": staff_id, "role": staff_role, "exp": timestamp}`. Valid roles are `admin`, `reviewer`, and `viewer`. The `X-Staff-ID` and `X-Staff-Role` headers must be removed from all authorization logic, these are not trusted inputs.
 
-Per **Decision 3 (Layers)**: Auth middleware and token verification live exclusively in `api/v1/dependencies.py`. Route handlers call service methods only; they do not contain business logic. Role checks must never appear inside service or repository layers — only at the route layer via dependency injection.
+Per **Decision 3 (Layers)**: Auth middleware and token verification live exclusively in `api/v1/dependencies.py`. Route handlers call service methods only; they do not contain business logic. Role checks must never appear inside service or repository layers, only at the route layer via dependency injection.
 
 Per **Decision 4 (API Contract)**: An unauthenticated request returns HTTP 401 with the standard error envelope: `{"success": false, "error": {"code": "UNAUTHORIZED", "message": "...", "details": null}}`. An authenticated but insufficiently-permissioned request returns HTTP 403 with `"code": "FORBIDDEN"`.
 
@@ -1925,7 +1925,7 @@ Per **Decision 4 (API Contract)**: An unauthenticated request returns HTTP 401 w
    jwt_expire_minutes: int = 480
    environment: str = "development"
    ```
-   The `jwt_secret` field has no default — it is required. If this variable is absent from the environment at startup the application must refuse to start (Pydantic will enforce this because of `Field(...)`).
+   The `jwt_secret` field has no default, it is required. If this variable is absent from the environment at startup the application must refuse to start (Pydantic will enforce this because of `Field(...)`).
 
 3. Create the file `backend/app/api/v1/dependencies.py` with the following content exactly:
    ```python
@@ -2088,7 +2088,7 @@ Per **Decision 4 (API Contract)**: An unauthenticated request returns HTTP 401 w
    - Add `_: None = Depends(require_permission(Permission.EXPORT_AUDIT))` as a parameter.
    - Add `token: dict = Depends(verify_token)` if the route needs the caller's identity for any logging.
 
-10. Open `backend/app/api/v1/health.py`. Locate the public `GET /api/v1/health` endpoint. Remove the `"llm_api"` key from its response dict entirely — it must not appear in the public health response at all. Then create a new endpoint:
+10. Open `backend/app/api/v1/health.py`. Locate the public `GET /api/v1/health` endpoint. Remove the `"llm_api"` key from its response dict entirely, it must not appear in the public health response at all. Then create a new endpoint:
     ```python
     @router.get("/health/detailed")
     async def detailed_health(
@@ -2112,7 +2112,7 @@ Per **Decision 4 (API Contract)**: An unauthenticated request returns HTTP 401 w
 
 12. Create `backend/.env.example` with the following content:
     ```
-    # MSBON Backend — Required Environment Variables
+    # MSBON Backend, Required Environment Variables
     # Copy this file to .env and fill in all values before running.
     # NEVER commit .env to version control.
 
@@ -2130,13 +2130,13 @@ Per **Decision 4 (API Contract)**: An unauthenticated request returns HTTP 401 w
     # Database
     DATABASE_URL=sqlite:///./data/msbon.db
 
-    # CORS — comma-separated list of allowed origins
+    # CORS, comma-separated list of allowed origins
     CORS_ORIGINS=http://localhost:5173
 
     # Logging level: DEBUG, INFO, WARNING, ERROR
     LOG_LEVEL=INFO
 
-    # Sentry DSN for error tracking (optional — leave empty to disable)
+    # Sentry DSN for error tracking (optional, leave empty to disable)
     SENTRY_DSN=
 
     # Runtime environment: development, staging, production
@@ -2172,7 +2172,7 @@ async def upload_transcript(
     db: Session = Depends(get_db),
 ):
     staff_id = token["sub"]
-    # pass staff_id to service — never trust a request body field for identity
+    # pass staff_id to service, never trust a request body field for identity
 
 # Correct permission check with separate verify_token + require_permission:
 @router.post("/reviews/{transcript_id}")
@@ -2222,13 +2222,13 @@ reviewer_id = x_staff_id or body.reviewer_id
 - `curl -X POST http://localhost:8000/api/v1/auth/login -d '{"staff_id":"admin","password":"demo"}'` returns HTTP 200 with a valid JWT in the `access_token` field
 - Decoding that JWT confirms payload contains `sub`, `role`, and `exp` fields
 - Using that JWT as a reviewer-role token (by manually crafting a reviewer JWT with the same secret) to `POST /api/v1/programs/` returns HTTP 403
-- `backend/.env` contains no real API key values — only the string `your_gemini_api_key_here` for `GEMINI_API_KEY`
+- `backend/.env` contains no real API key values, only the string `your_gemini_api_key_here` for `GEMINI_API_KEY`
 - Calling `document_extractor.py`'s extraction method with file path `../../etc/passwd` raises `ExtractionFailedError` with a message containing "Path traversal detected"
 - `grep -r "x_staff_role\|x_staff_id" backend/app/api/` returns no results
 
 **Completion Report Template:**
 ```
-## Security Agent Phase A — Completion Report
+## Security Agent Phase A, Completion Report
 
 ### JWT Authentication
 - [ ] verify_token dependency created at backend/app/api/v1/dependencies.py
@@ -2264,7 +2264,7 @@ reviewer_id = x_staff_id or body.reviewer_id
 **Phase:** A
 **Finding IDs Addressed:** DB-011, DB-001, DB-002, DB-003, DB-006, DB-012, DB-013, DB-014, DB-016, DB-018, DB-007, DB-008, DB-009, BE-003, DB-004, DB-005, DB-010, SEC-010
 
-**Task Summary:** Establish the Alembic migration framework by replacing the `create_all()` call with a proper `alembic upgrade head` invocation, then generate a single comprehensive migration that addresses all schema integrity defects — missing foreign keys, absent cascade rules, unconstrained status enum, missing indexes, and PII fields stored in plaintext. Fix all multi-step write operations in service files to use atomic nested transactions so that partial failures cannot leave the database in an inconsistent state.
+**Task Summary:** Establish the Alembic migration framework by replacing the `create_all()` call with a proper `alembic upgrade head` invocation, then generate a single comprehensive migration that addresses all schema integrity defects, missing foreign keys, absent cascade rules, unconstrained status enum, missing indexes, and PII fields stored in plaintext. Fix all multi-step write operations in service files to use atomic nested transactions so that partial failures cannot leave the database in an inconsistent state.
 
 **Context:**
 
@@ -2292,7 +2292,7 @@ Per **Decision 8 (Logging)**: All database errors must be logged using `logger.e
      alembic_command.upgrade(alembic_cfg, "head")
      ```
 
-2. **Update ORM models** — make all model changes before generating the migration, so the autogenerate captures everything in one revision.
+2. **Update ORM models**, make all model changes before generating the migration, so the autogenerate captures everything in one revision.
 
    **`backend/app/models/transcript.py`** (DB-018, DB-001):
    - Import `SQLAlchemy_Enum` via `from sqlalchemy import Enum as SQLAlchemy_Enum`.
@@ -2370,7 +2370,7 @@ Per **Decision 8 (Logging)**: All database errors must be logged using `logger.e
 
    **`backend/app/models/extracted_data.py`** (DB-002, DB-010, SEC-010):
    - Update the FK: `transcript_id: Mapped[str] = mapped_column(ForeignKey("transcripts.id", ondelete="CASCADE"), nullable=False)`
-   - Install `sqlalchemy-utils` — add `sqlalchemy-utils` to `backend/requirements.txt`.
+   - Install `sqlalchemy-utils`, add `sqlalchemy-utils` to `backend/requirements.txt`.
    - Change `student_name` and `raw_text` to use `EncryptedType`:
      ```python
      from sqlalchemy_utils import EncryptedType
@@ -2417,10 +2417,10 @@ Per **Decision 8 (Logging)**: All database errors must be logged using `logger.e
      ```
 
 3. **Add `encryption_key` to Settings** (backend/app/config.py):
-   - Add: `encryption_key: str = Field(..., min_length=32)` — required, no default.
+   - Add: `encryption_key: str = Field(..., min_length=32)`, required, no default.
    - Confirm `ENCRYPTION_KEY=` is present in `backend/.env.example` (it should be from the Security agent's work, or add it here if that agent has not run yet).
 
-4. **Generate the Alembic migration** — after all model changes above are saved:
+4. **Generate the Alembic migration**, after all model changes above are saved:
    - From the `backend/` directory run: `alembic revision --autogenerate -m "initial_schema_integrity"`
    - Open the generated file in `backend/migrations/versions/`.
    - Review the `upgrade()` function. Verify it includes: SQLEnum for TranscriptStatus, FK additions on staff_review and extracted_data, cascade rules on audit_log, verification_flag, extracted_data, all Index and UniqueConstraint and CheckConstraint additions, EncryptedType column changes, and created_at/updated_at on accredited_program.
@@ -2550,7 +2550,7 @@ Per **Decision 8 (Logging)**: All database errors must be logged using `logger.e
 # All multi-step DB writes must follow this nested transaction pattern:
 try:
     with db.begin_nested():
-        # step 1 — will be rolled back if step 2 fails
+        # step 1, will be rolled back if step 2 fails
         # step 2
         # step 3
     db.commit()  # one commit after all steps succeed
@@ -2562,7 +2562,7 @@ except Exception as exc:
 # Audit log always INSIDE the transaction:
 with db.begin_nested():
     save_primary_record()
-    audit.log(...)  # inside — not after commit
+    audit.log(...)  # inside, not after commit
 db.commit()
 ```
 
@@ -2582,7 +2582,7 @@ db.commit()
 - `backend/app/database.py`
 - `backend/app/config.py`
 - `backend/migrations/env.py`
-- `backend/migrations/versions/` (new migration file — CREATE)
+- `backend/migrations/versions/` (new migration file, CREATE)
 - `backend/alembic.ini`
 - `backend/requirements.txt` (add `sqlalchemy-utils`)
 
@@ -2603,7 +2603,7 @@ db.commit()
 
 **Completion Report Template:**
 ```
-## Database Agent Phase A — Completion Report
+## Database Agent Phase A, Completion Report
 
 ### Migration Framework
 - [ ] alembic.ini reads DATABASE_URL from environment variable
@@ -2612,19 +2612,19 @@ db.commit()
 - [ ] create_all() replaced with alembic upgrade head in init_db()
 
 ### Schema Integrity (one line per model updated)
-- [ ] transcript.py — SQLAlchemy_Enum for status, two indexes added
-- [ ] audit_log.py — FK ondelete=SET NULL, compound index, two CHECK constraints
-- [ ] verification_flag.py — FK ondelete=CASCADE, UniqueConstraint, index
-- [ ] staff_review.py — ForeignKey added (was missing entirely), two indexes
-- [ ] extracted_data.py — FK ondelete=CASCADE, EncryptedType for student_name and raw_text, index
-- [ ] flagging_rule.py — UniqueConstraint, category index
-- [ ] accredited_program.py — created_at and updated_at columns added
+- [ ] transcript.py, SQLAlchemy_Enum for status, two indexes added
+- [ ] audit_log.py, FK ondelete=SET NULL, compound index, two CHECK constraints
+- [ ] verification_flag.py, FK ondelete=CASCADE, UniqueConstraint, index
+- [ ] staff_review.py, ForeignKey added (was missing entirely), two indexes
+- [ ] extracted_data.py, FK ondelete=CASCADE, EncryptedType for student_name and raw_text, index
+- [ ] flagging_rule.py, UniqueConstraint, category index
+- [ ] accredited_program.py, created_at and updated_at columns added
 
 ### Transaction Atomicity (one line per service fixed)
-- [ ] extraction_service.py — all three DB steps wrapped in db.begin_nested()
-- [ ] verification_service.py — audit.log() moved inside transaction before commit
-- [ ] review_service.py — repo.save() and update_status() wrapped atomically
-- [ ] transcript_service.py — file removed on DB failure via try/except
+- [ ] extraction_service.py, all three DB steps wrapped in db.begin_nested()
+- [ ] verification_service.py, audit.log() moved inside transaction before commit
+- [ ] review_service.py, repo.save() and update_status() wrapped atomically
+- [ ] transcript_service.py, file removed on DB failure via try/except
 
 ### Performance
 - [ ] ProgramRepository.find_by_name() uses SQL func.lower().contains() filter
@@ -2643,13 +2643,13 @@ db.commit()
 **Phase:** A
 **Finding IDs Addressed:** BE-001, DO-005, BE-018, DO-010, SEC-019, DO-011
 
-**Task Summary:** Add startup validation so the application fails fast and loudly when critical configuration variables are missing or invalid — rather than silently misbehaving later. Implement structured JSON logging with rotating file output and per-request correlation IDs so that every log line is traceable to a specific request. Integrate Sentry for error monitoring so that unhandled exceptions — including silent failures in background pipeline tasks — are captured and reported.
+**Task Summary:** Add startup validation so the application fails fast and loudly when critical configuration variables are missing or invalid, rather than silently misbehaving later. Implement structured JSON logging with rotating file output and per-request correlation IDs so that every log line is traceable to a specific request. Integrate Sentry for error monitoring so that unhandled exceptions, including silent failures in background pipeline tasks, are captured and reported.
 
 **Context:**
 
 Per **Decision 8 (Logging)**: The logging library must be `python-json-logger`. Output goes to a `RotatingFileHandler` as well as stdout. Every log record must include `correlation_id`. A `SensitiveDataFilter` must redact any log record field named `api_key`, `token`, `password`, or `authorization`. The `settings.log_level` value must be consumed. `print()` must not appear in any production code path.
 
-Per **Decision 7 (Error Handling)**: A global unhandled exception handler must log to Sentry before returning the standard error envelope to the client. Background task exceptions must be caught, logged, and sent to Sentry — they must not fail silently.
+Per **Decision 7 (Error Handling)**: A global unhandled exception handler must log to Sentry before returning the standard error envelope to the client. Background task exceptions must be caught, logged, and sent to Sentry, they must not fail silently.
 
 Per **Decision 3 (Layers)**: Logging configuration belongs in the infrastructure layer. HTTP middleware belongs in `main.py` or a dedicated `middleware/` package.
 
@@ -2662,9 +2662,9 @@ Per **Decision 3 (Layers)**: Logging configuration belongs in the infrastructure
    ```
 
 2. Open `backend/app/config.py`. Add the following fields to `Settings` if they are not already present:
-   - `log_level: str = "INFO"` — if it already exists, confirm it has no `Field(...)` annotation that would make it required (it should be optional with a default).
-   - `sentry_dsn: str = ""` — optional, empty string disables Sentry.
-   - `environment: str = "development"` — if the Security agent has not already added this, add it here.
+   - `log_level: str = "INFO"`, if it already exists, confirm it has no `Field(...)` annotation that would make it required (it should be optional with a default).
+   - `sentry_dsn: str = ""`, optional, empty string disables Sentry.
+   - `environment: str = "development"`, if the Security agent has not already added this, add it here.
    Add a `field_validator` for `gemini_api_key` to reject empty or placeholder values at startup:
    ```python
    from pydantic import field_validator
@@ -2855,7 +2855,7 @@ logger.info("Extraction started", extra={
     "correlation_id": correlation_id,  # pass from request state when available
 })
 
-# Never log PII content — log metadata only:
+# Never log PII content, log metadata only:
 logger.info("Extraction complete", extra={
     "transcript_id": transcript_id,
     "text_length": len(raw_text),    # length only, not content
@@ -2903,7 +2903,7 @@ logger.info("LLM call result", extra={
 
 **Completion Report Template:**
 ```
-## Backend Foundation Agent Phase A — Completion Report
+## Backend Foundation Agent Phase A, Completion Report
 
 ### Startup Validation
 - [ ] gemini_api_key field_validator added to Settings
@@ -2940,11 +2940,11 @@ logger.info("LLM call result", extra={
 **Phase:** A
 **Finding IDs Addressed:** DO-003, DO-001, DO-013
 
-**Task Summary:** Containerize both the backend and frontend services using multi-stage Dockerfiles, wire them together with a docker-compose configuration, and establish a five-gate GitHub Actions CI pipeline that runs on every pull request targeting main — gating merges on lint, test coverage, Docker build, security scan, and migration health. Add an automated SQLite backup service that runs on a 6-hour interval.
+**Task Summary:** Containerize both the backend and frontend services using multi-stage Dockerfiles, wire them together with a docker-compose configuration, and establish a five-gate GitHub Actions CI pipeline that runs on every pull request targeting main, gating merges on lint, test coverage, Docker build, security scan, and migration health. Add an automated SQLite backup service that runs on a 6-hour interval.
 
 **Context:**
 
-Per **Decision 10 (CI/CD)**: Five gates are mandatory: lint, test (backend at 80% coverage minimum, frontend with vitest coverage), Docker build, security scan (`safety check` + `npm audit`), and Alembic migration check (`upgrade head` → `downgrade -1` → `upgrade head`). Frontend CI must use `npm ci --frozen-lockfile` — not `npm install`. No PR may merge with a failing gate.
+Per **Decision 10 (CI/CD)**: Five gates are mandatory: lint, test (backend at 80% coverage minimum, frontend with vitest coverage), Docker build, security scan (`safety check` + `npm audit`), and Alembic migration check (`upgrade head` → `downgrade -1` → `upgrade head`). Frontend CI must use `npm ci --frozen-lockfile`, not `npm install`. No PR may merge with a failing gate.
 
 Per **Decision 9 (Testing)**: Backend coverage enforced with `pytest --cov-fail-under=80`. Frontend coverage enforced with `vitest --coverage`.
 
@@ -3025,7 +3025,7 @@ Per **Decision 9 (Testing)**: Backend coverage enforced with `pytest --cov-fail-
        root /usr/share/nginx/html;
        index index.html;
 
-       # Serve SPA — all unknown paths fall back to index.html
+       # Serve SPA, all unknown paths fall back to index.html
        location / {
            try_files $uri $uri/ /index.html;
        }
@@ -3358,15 +3358,15 @@ Per **Decision 9 (Testing)**: Backend coverage enforced with `pytest --cov-fail-
 
 **Completion Report Template:**
 ```
-## DevOps Agent Phase A — Completion Report
+## DevOps Agent Phase A, Completion Report
 
 ### Containerization
-- [ ] backend/Dockerfile — two-stage, python:3.11-slim base
-- [ ] frontend/Dockerfile — two-stage, node:20-alpine builder + nginx:alpine serve
-- [ ] frontend/nginx.conf — SPA fallback and /api/ proxy configured
-- [ ] backend/.dockerignore — excludes .env, data/, logs/, *.db, __pycache__
-- [ ] frontend/.dockerignore — excludes node_modules/, dist/, .env
-- [ ] docker-compose.yml — both services with healthcheck and volume mounts
+- [ ] backend/Dockerfile, two-stage, python:3.11-slim base
+- [ ] frontend/Dockerfile, two-stage, node:20-alpine builder + nginx:alpine serve
+- [ ] frontend/nginx.conf, SPA fallback and /api/ proxy configured
+- [ ] backend/.dockerignore, excludes .env, data/, logs/, *.db, __pycache__
+- [ ] frontend/.dockerignore, excludes node_modules/, dist/, .env
+- [ ] docker-compose.yml, both services with healthcheck and volume mounts
 
 ### CI/CD Pipeline
 - [ ] .github/workflows/ci.yml created
@@ -3398,11 +3398,11 @@ Per **Decision 9 (Testing)**: Backend coverage enforced with `pytest --cov-fail-
 **Phase:** A
 **Finding IDs Addressed:** FE-001
 
-**Task Summary:** Remove the single CRITICAL frontend finding — an `as any` cast in `ProgramsPage.tsx` that defeats TypeScript's type checking on the `addProgram` mutation call. Define a properly typed `ProgramForm` interface in the shared types file and update the component to use it as the state type, eliminating the need for the unsafe cast entirely.
+**Task Summary:** Remove the single CRITICAL frontend finding, an `as any` cast in `ProgramsPage.tsx` that defeats TypeScript's type checking on the `addProgram` mutation call. Define a properly typed `ProgramForm` interface in the shared types file and update the component to use it as the state type, eliminating the need for the unsafe cast entirely.
 
 **Context:**
 
-Per **Decision 1 (State Management)**: Form state must be typed with a TypeScript interface. The interface must live in a shared types file, not inline in the component. Custom hooks are preferred for mutation logic, but for Phase A the minimum acceptable fix is removing the `as any` cast and introducing the typed interface — the custom hook extraction is a Phase B item (FE-005).
+Per **Decision 1 (State Management)**: Form state must be typed with a TypeScript interface. The interface must live in a shared types file, not inline in the component. Custom hooks are preferred for mutation logic, but for Phase A the minimum acceptable fix is removing the `as any` cast and introducing the typed interface, the custom hook extraction is a Phase B item (FE-005).
 
 Per **Decision 7 (Error Handling)**: The codebase must not contain `as any` type assertions on data passed to service functions. If a type mismatch exists between the form state and the `addProgram` function signature, fix the function signature rather than casting.
 
@@ -3475,36 +3475,36 @@ Per **Decision 7 (Error Handling)**: The codebase must not contain `as any` type
       setForm(DEFAULT_PROGRAM_FORM);
       ```
 
-3. If step 2c causes a TypeScript error because `addProgram()` does not accept `{ accreditation_expires: string | null }` (or similar), open `frontend/src/services/programClient.ts` (or wherever `addProgram` is defined). Update the parameter type of `addProgram` to accept the shape produced by the spread above. For example, if it currently accepts `Program` (the API response type), create a separate `AddProgramRequest` interface that matches the request body shape and use that as the parameter type. Fix the root type mismatch — do not introduce another `as any`.
+3. If step 2c causes a TypeScript error because `addProgram()` does not accept `{ accreditation_expires: string | null }` (or similar), open `frontend/src/services/programClient.ts` (or wherever `addProgram` is defined). Update the parameter type of `addProgram` to accept the shape produced by the spread above. For example, if it currently accepts `Program` (the API response type), create a separate `AddProgramRequest` interface that matches the request body shape and use that as the parameter type. Fix the root type mismatch, do not introduce another `as any`.
 
 4. From the `frontend/` directory, run `npx tsc --noEmit`. If it reports errors, fix each error by correcting the actual type rather than casting. Do not introduce any new `as any` assertions anywhere.
 
 **Patterns to Follow:**
 
 ```typescript
-// CORRECT — typed state with interface:
+// CORRECT, typed state with interface:
 const [form, setForm] = useState<ProgramForm>(DEFAULT_PROGRAM_FORM);
 
-// CORRECT — typed reset uses the constant:
+// CORRECT, typed reset uses the constant:
 const resetForm = () => setForm(DEFAULT_PROGRAM_FORM);
 
-// CORRECT — mutation call without cast:
+// CORRECT, mutation call without cast:
 mutationFn: () => addProgram({
   ...form,
   accreditation_expires: form.accreditation_expires || null,
 }),
 
-// NEVER — removes type safety entirely:
+// NEVER, removes type safety entirely:
 mutationFn: () => addProgram({ ...form } as any),
 
-// NEVER — inline anonymous type with cast:
+// NEVER, inline anonymous type with cast:
 const [form, setForm] = useState({} as any);
 ```
 
 **Files in Scope:**
 - `frontend/src/types/index.ts`
 - `frontend/src/pages/ProgramsPage.tsx`
-- `frontend/src/services/programClient.ts` (only if `addProgram`'s type signature requires correction — do not change this file unless a TypeScript error forces it)
+- `frontend/src/services/programClient.ts` (only if `addProgram`'s type signature requires correction, do not change this file unless a TypeScript error forces it)
 
 **Files Out of Scope:**
 - All other frontend files
@@ -3519,7 +3519,7 @@ const [form, setForm] = useState({} as any);
 
 **Completion Report Template:**
 ```
-## Frontend Critical Agent Phase A — Completion Report
+## Frontend Critical Agent Phase A, Completion Report
 
 ### Type Safety Fix (FE-001)
 - [ ] ProgramForm interface added to frontend/src/types/index.ts with 6 string fields
@@ -3546,7 +3546,7 @@ const [form, setForm] = useState({} as any);
 **Phase:** A
 **Finding IDs Addressed:** UX-001, UX-002
 
-**Task Summary:** Establish the design token system that all subsequent Phase B UI/UX work will depend on. Wire the CSS custom properties already defined in `index.css` into `tailwind.config.js` as named theme tokens so that Tailwind utility classes like `text-accent` and `bg-surface` reference the design system values. Update the navigation bar in `App.tsx` — the most prominent instance of raw hardcoded color classes — to use the new semantic token classes. Produce a `DESIGN_TOKENS.md` reference document so Phase B agents have a single source of truth.
+**Task Summary:** Establish the design token system that all subsequent Phase B UI/UX work will depend on. Wire the CSS custom properties already defined in `index.css` into `tailwind.config.js` as named theme tokens so that Tailwind utility classes like `text-accent` and `bg-surface` reference the design system values. Update the navigation bar in `App.tsx`, the most prominent instance of raw hardcoded color classes, to use the new semantic token classes. Produce a `DESIGN_TOKENS.md` reference document so Phase B agents have a single source of truth.
 
 **Context:**
 
@@ -3593,7 +3593,7 @@ Per **Decision 2 (Styling)**: CSS custom properties defined on `:root` in `index
      theme: {
        extend: {
          colors: {
-           // Core design tokens — map every CSS custom property from index.css :root
+           // Core design tokens, map every CSS custom property from index.css :root
            accent: 'var(--accent)',
            'accent-bg': 'var(--accent-bg)',
            surface: 'var(--surface)',
@@ -3630,7 +3630,7 @@ Per **Decision 2 (Styling)**: CSS custom properties defined on `:root` in `index
    ```
    Also locate the container element of the navigation bar (a `<nav>` or `<header>` or outer `<div>`). Find the classes `bg-white border-b border-gray-200` (or similar hardcoded white/gray classes). Replace them with `bg-surface border-b border-border`.
 
-6. Run `npx tsc --noEmit` from the `frontend/` directory. Fix any TypeScript errors introduced by the changes — most likely none, since the changes are CSS classes and config only. Do not introduce `as any`.
+6. Run `npx tsc --noEmit` from the `frontend/` directory. Fix any TypeScript errors introduced by the changes, most likely none, since the changes are CSS classes and config only. Do not introduce `as any`.
 
 7. Create the file `frontend/docs/DESIGN_TOKENS.md`. Create the `frontend/docs/` directory if it does not exist. The file must document every token in the following format:
 
@@ -3716,7 +3716,7 @@ className="bg-accent"      // correct
 - `frontend/docs/` directory (CREATE if absent)
 
 **Files Out of Scope:**
-- All other frontend component files — Phase B agents will migrate components to the token system
+- All other frontend component files, Phase B agents will migrate components to the token system
 - All backend files
 
 **Definition of Done:**
@@ -3729,7 +3729,7 @@ className="bg-accent"      // correct
 
 **Completion Report Template:**
 ```
-## UI/UX Foundation Agent Phase A — Completion Report
+## UI/UX Foundation Agent Phase A, Completion Report
 
 ### Design Token System (UX-001, UX-002)
 - [ ] tailwind.config.js extended with N semantic color tokens (state actual count: N = ___)
@@ -3767,24 +3767,24 @@ className="bg-accent"      // correct
 | DevOps   | 17 | 17 (DO-001 to DO-017) | 0 | ✓ Exact match |
 | **TOTAL**| **153** | **152** | **-1** | See note below |
 
-### Database Domain Discrepancy — Audit Note
+### Database Domain Discrepancy, Audit Note
 
 The Phase 1 Audit Report summary table states:
 > Database: 11 Critical + 8 Major + 7 Minor = **26 total**
 
 The Phase 1 report body contains findings **DB-001 through DB-025** (25 findings). The sub-agent's summary breakdown states 8 Major, but only 6 Major findings (DB-012 through DB-017) appear in the report body. The sub-agent's Minor count states 7, but 8 Minor findings are present (DB-006, DB-019–DB-025), including DB-024 which is informational with no fix required.
 
-**Conclusion:** The Phase 1 Database domain summary contains an **arithmetic error in the severity breakdown** (Major stated as 8, actual is 6; Minor stated as 7, actual is 8 including DB-024). The finding bodies themselves are complete — DB-001 through DB-025 represent every distinct database finding. No finding has been dropped from this blueprint. All 25 Database findings are assigned to implementation phases. The one-finding gap between Phase 1's stated total (153) and this blueprint's confirmed count (152) is attributable to this Phase 1 summary arithmetic error, **not** to any finding being omitted here.
+**Conclusion:** The Phase 1 Database domain summary contains an **arithmetic error in the severity breakdown** (Major stated as 8, actual is 6; Minor stated as 7, actual is 8 including DB-024). The finding bodies themselves are complete, DB-001 through DB-025 represent every distinct database finding. No finding has been dropped from this blueprint. All 25 Database findings are assigned to implementation phases. The one-finding gap between Phase 1's stated total (153) and this blueprint's confirmed count (152) is attributable to this Phase 1 summary arithmetic error, **not** to any finding being omitted here.
 
 ### Phase Status Summary
 
 | Status | Count | Meaning |
 |--------|-------|---------|
-| Queued (Phase A) | 17 tasks covering 27 finding IDs | Execute first — nothing else starts |
+| Queued (Phase A) | 17 tasks covering 27 finding IDs | Execute first, nothing else starts |
 | Queued (Phase B) | 40 tasks covering ~90 finding IDs | Architecture and structural work |
 | Queued (Phase C) | ~41 tasks covering ~34 finding IDs | Polish, minor fixes, test coverage |
-| Deferred | 1 finding (SEC-022) | Infrastructure decision required — human review |
-| **Total Accounted** | **152 findings** | **All carried forward — none dropped** |
+| Deferred | 1 finding (SEC-022) | Infrastructure decision required, human review |
+| **Total Accounted** | **152 findings** | **All carried forward, none dropped** |
 
 ### Blueprint Validity Statement
 

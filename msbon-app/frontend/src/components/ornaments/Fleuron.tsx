@@ -1,4 +1,4 @@
-/* Single decorative flourish — used as an inline glyph for category/section
+/* Single decorative flourish, used as an inline glyph for category/section
  * tags, end-of-article marker, etc.
  */
 interface Props {

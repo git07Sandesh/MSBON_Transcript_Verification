@@ -67,7 +67,7 @@ export default function TranscriptSummary({ transcript }: Props) {
                 }`}
                 style={f.emphasize ? { fontVariationSettings: '"opsz" 9, "wght" 400' } : undefined}
               >
-                {f.value || <span className="text-charcoal-muted">—</span>}
+                {f.value || <span className="text-charcoal-muted">-</span>}
               </dd>
             </div>
           ))}

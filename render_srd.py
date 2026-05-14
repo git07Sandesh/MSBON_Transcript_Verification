@@ -7,7 +7,7 @@ block with a link to the matching pre-rendered image in srd_figures/, then
 runs pandoc to emit Software_Requirements_Document.docx and .pdf.
 
 Diagrams are expected to already exist in srd_figures/ (they are rendered via
-the claude-mermaid MCP — see feedback_diagram_tooling.md). This script is
+the claude-mermaid MCP, see feedback_diagram_tooling.md). This script is
 intentionally idempotent: re-running it just rewrites the rendered .md/.docx/.pdf
 from the current source.
 """
@@ -23,7 +23,7 @@ DOCX_OUT = BASE_DIR / "Software_Requirements_Document.docx"
 PDF_OUT = BASE_DIR / "Software_Requirements_Document.pdf"
 
 # Map mermaid block first-line patterns to figure filenames in srd_figures/.
-# Order matters — the Nth match in the document is paired with the Nth entry
+# Order matters, the Nth match in the document is paired with the Nth entry
 # of the same kind in this list.
 FIGURE_ORDER = [
     ("graph TB", "srd_context_diagram.png"),
@@ -54,7 +54,7 @@ def main() -> None:
     blocks = MERMAID_RE.findall(src)
     if len(blocks) != len(FIGURE_ORDER):
         print(f"[WARN] Found {len(blocks)} mermaid blocks but FIGURE_ORDER has "
-              f"{len(FIGURE_ORDER)} entries — image mapping may be off.")
+              f"{len(FIGURE_ORDER)} entries, image mapping may be off.")
 
     consumed: dict[str, int] = {}
     for block in blocks:

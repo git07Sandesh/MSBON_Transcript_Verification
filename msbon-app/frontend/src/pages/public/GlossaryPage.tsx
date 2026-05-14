@@ -1,4 +1,4 @@
-/* Public glossary — what each of the twelve rules does, in plain language.
+/* Public glossary, what each of the twelve rules does, in plain language.
  * Editorial article style: drop cap on the first paragraph, category icons
  * in margins, anchor-able rule sections (the command palette links to
  * #grad-001 etc. so a reviewer can sense-check what the system means).
@@ -31,7 +31,7 @@ const RULES: Rule[] = [
     id: "GRAD-001", name: "Missing graduation confirmation",
     category: "GRADUATION", categoryLabel: "Graduation", severity: "HIGH",
     fires_on: "The transcript text does not contain an explicit statement of degree conferral or graduation.",
-    why_it_matters: "Without explicit confirmation, the applicant may be ABD (all-but-degree) — eligible to leave a program but never actually credentialed. Manual reviewers miss this when scanning.",
+    why_it_matters: "Without explicit confirmation, the applicant may be ABD (all-but-degree), eligible to leave a program but never actually credentialed. Manual reviewers miss this when scanning.",
     override_looks_like: "A reviewer who has spoken with the registrar by phone and confirmed conferral in writing.",
   },
   {
@@ -39,7 +39,7 @@ const RULES: Rule[] = [
     category: "GRADUATION", categoryLabel: "Graduation", severity: "MEDIUM",
     fires_on: "The extracted JSON has a null graduation_date.",
     why_it_matters: "A missing date prevents the FRAU-001 duration check from running. It is rarely deliberate, but it always degrades verification.",
-    override_looks_like: "A reviewer who has located the date elsewhere — usually a stamped diploma scan attached separately.",
+    override_looks_like: "A reviewer who has located the date elsewhere, usually a stamped diploma scan attached separately.",
   },
   {
     id: "ACCR-001", name: "Institution not in MS accredited list",
@@ -59,7 +59,7 @@ const RULES: Rule[] = [
     id: "COUR-001", name: "Required nursing courses missing",
     category: "COURSE", categoryLabel: "Coursework", severity: "HIGH",
     fires_on: "The course list does not contain at least one course matching each of the six required nursing curriculum areas (fundamentals, med-surg/adult health, pharmacology, mental health, maternal/OB, pediatric).",
-    why_it_matters: "These six are the floor for any clinically licensed nurse. A gap is either a transcript that didn't extract cleanly or — more rarely — a program that didn't actually require them.",
+    why_it_matters: "These six are the floor for any clinically licensed nurse. A gap is either a transcript that didn't extract cleanly or, more rarely, a program that didn't actually require them.",
     override_looks_like: "A reviewer who has the original transcript open and can point to where the missing course actually lives in the text.",
   },
   {
@@ -74,12 +74,12 @@ const RULES: Rule[] = [
     category: "FRAUD", categoryLabel: "Fraud signal", severity: "HIGH",
     fires_on: "Time between enrollment_date and graduation_date is below a plausible minimum for the program type.",
     why_it_matters: "This is the rule Operation Nightingale would have caught. A BSN granted eight months after enrollment is physically impossible.",
-    override_looks_like: "Very rare. Almost always requires the school's letterhead explaining transfer credits or an accelerated pathway program — and even then it triggers a second-reviewer requirement.",
+    override_looks_like: "Very rare. Almost always requires the school's letterhead explaining transfer credits or an accelerated pathway program, and even then it triggers a second-reviewer requirement.",
   },
   {
     id: "FRAU-002", name: "Suspicious grade distribution",
     category: "FRAUD", categoryLabel: "Fraud signal", severity: "MEDIUM",
-    fires_on: "Eight or more nursing courses with no grade variance — all A, all A+, or otherwise impossibly uniform.",
+    fires_on: "Eight or more nursing courses with no grade variance, all A, all A+, or otherwise impossibly uniform.",
     why_it_matters: "Real transcripts have variance. Perfectly uniform A's are an indicator that someone hand-typed the transcript rather than the registrar producing it.",
     override_looks_like: "Honors-program documentation or a school whose policy was pass/fail at the time.",
   },
@@ -108,7 +108,7 @@ const RULES: Rule[] = [
     id: "FORM-003", name: "Inconsistent grade formatting",
     category: "FORMAT", categoryLabel: "Formatting", severity: "LOW",
     fires_on: "Grade notation changes mid-transcript (letter, percentage, pass/fail interleaved without legend).",
-    why_it_matters: "Same as FORM-002 — a mild structural integrity signal, not a fraud claim.",
+    why_it_matters: "Same as FORM-002, a mild structural integrity signal, not a fraud claim.",
     override_looks_like: "Pass/fail courses cleanly documented and the rest letter-graded.",
   },
 ];
@@ -143,7 +143,7 @@ export default function GlossaryPage() {
               lesson: a transcript review is only as good as the reviewer's
               attention, and attention is finite. The twelve rules below are
               the system's attempt to do the mechanical half of a reviewer's
-              job — not to replace judgment, but to make sure the boring checks
+              job, not to replace judgment, but to make sure the boring checks
               happen every time, on every page, without anyone getting tired.
             </p>
             <p>

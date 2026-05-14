@@ -27,7 +27,7 @@ pip install -r requirements-dev.txt
 
 # Configure environment
 cp .env.example .env
-# Edit .env — set GEMINI_API_KEY
+# Edit .env, set GEMINI_API_KEY
 
 # Run (tables + seed data created automatically on startup)
 uvicorn app.main:app --reload
@@ -97,11 +97,11 @@ msbon-app/
 
 ## Key Design Decisions
 
-- **No automated licensure decisions** — all AI outputs are advisory; staff retain full authority
-- **Tamper-evident audit logs** — `AuditRepository` is write-only; `update()` and `delete()` raise `OperationNotPermittedError`
-- **12 transparent rules** — every flag includes rule ID + source excerpt + full explanation
-- **File security** — files saved as `{uuid}.{ext}`; MIME validated via `python-magic` (not file extension); originals stored outside web root
-- **LLM resilience** — Gemini adapter retries 3× with exponential back-off before raising `LLM_UNAVAILABLE`
+- **No automated licensure decisions**, all AI outputs are advisory; staff retain full authority
+- **Tamper-evident audit logs**, `AuditRepository` is write-only; `update()` and `delete()` raise `OperationNotPermittedError`
+- **12 transparent rules**, every flag includes rule ID + source excerpt + full explanation
+- **File security**, files saved as `{uuid}.{ext}`; MIME validated via `python-magic` (not file extension); originals stored outside web root
+- **LLM resilience**, Gemini adapter retries 3× with exponential back-off before raising `LLM_UNAVAILABLE`
 
 ---
 
@@ -110,11 +110,11 @@ msbon-app/
 | Criterion | Target |
 |---|---|
 | Flag detection accuracy | ≥ 90% against synthetic test set |
-| Flag explainability | 100% — every flag has rule ID + source + explanation |
-| Audit completeness | 100% — every state change produces an audit entry |
-| Override traceability | 100% — every OVERRIDDEN decision stores `override_reason` |
-| No automated decisions | 100% — no endpoint approves or denies licensure |
+| Flag explainability | 100%, every flag has rule ID + source + explanation |
+| Audit completeness | 100%, every state change produces an audit entry |
+| Override traceability | 100%, every OVERRIDDEN decision stores `override_reason` |
+| No automated decisions | 100%, no endpoint approves or denies licensure |
 
 ---
 
-*MSBON PoC — not for production deployment. Synthetic/de-identified data only.*
+*MSBON PoC, not for production deployment. Synthetic/de-identified data only.*

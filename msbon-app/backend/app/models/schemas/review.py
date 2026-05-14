@@ -8,7 +8,7 @@ class ReviewRequest(BaseModel):
     flag_id: str
     transcript_id: str
     # reviewer_id is sourced from the verified JWT (sub claim) by the route
-    # handler — never trust a client-supplied identity in the body.
+    # handler, never trust a client-supplied identity in the body.
     # Field kept Optional purely for backwards compatibility with older clients
     # that still send it; the value is ignored.
     reviewer_id: Optional[str] = None

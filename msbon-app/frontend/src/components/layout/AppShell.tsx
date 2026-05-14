@@ -76,7 +76,7 @@ export default function AppShell({ children, onOpenPalette }: AppShellProps) {
               Public site
             </Link>
             <span className="font-sans text-body-sm text-charcoal-muted">
-              {staffId || "—"}
+              {staffId || "-"}
             </span>
             <button
               onClick={logout}

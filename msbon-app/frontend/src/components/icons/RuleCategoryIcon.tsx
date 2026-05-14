@@ -7,7 +7,7 @@ import type { ReactElement, SVGProps } from "react";
 type Category = "GRADUATION" | "ACCREDITATION" | "COURSE" | "FRAUD" | "FORMAT";
 
 interface Props extends Omit<SVGProps<SVGSVGElement>, "viewBox"> {
-  category: string;       // string, not Category — tolerates anything from the API
+  category: string;       // string, not Category, tolerates anything from the API
   size?: number;
   tone?: "terracotta" | "charcoal" | "muted";
   decorative?: boolean;   // aria-hidden when true; otherwise gets title + role="img"
@@ -40,7 +40,7 @@ function GraduationGlyph() {
 }
 
 function AccreditationGlyph() {
-  // State-seal stamp — concentric circles + radiating ticks
+  // State-seal stamp, concentric circles + radiating ticks
   return (
     <>
       <circle cx="12" cy="12" r="8" />
@@ -59,7 +59,7 @@ function AccreditationGlyph() {
 }
 
 function CourseGlyph() {
-  // Open book — two pages with center spine
+  // Open book, two pages with center spine
   return (
     <>
       <path d="M3 6 C6 5 9 5 12 7 C15 5 18 5 21 6 V18 C18 17 15 17 12 19 C9 17 6 17 3 18 Z" />
@@ -75,7 +75,7 @@ function CourseGlyph() {
 }
 
 function FraudGlyph() {
-  // Slashed circle with two small marks inside — "tampered"
+  // Slashed circle with two small marks inside, "tampered"
   return (
     <>
       <circle cx="12" cy="12" r="8" />

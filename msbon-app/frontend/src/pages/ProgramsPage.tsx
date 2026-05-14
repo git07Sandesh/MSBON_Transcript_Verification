@@ -226,7 +226,7 @@ export default function ProgramsPage() {
                     {p.state}
                   </td>
                   <td className="py-5 px-4 hidden lg:table-cell font-sans text-body-sm text-charcoal-muted">
-                    {p.accreditation_expires || "—"}
+                    {p.accreditation_expires || "-"}
                   </td>
                 </motion.tr>
               ))}

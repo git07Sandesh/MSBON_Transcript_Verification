@@ -1,9 +1,9 @@
 """Aggregate insights for the dashboard + public transparency stats.
 
 Two endpoints:
-  - ``GET /insights/public``  — anonymous, counts only, safe to render on the
+  - ``GET /insights/public`` , anonymous, counts only, safe to render on the
     public-facing /impact page.
-  - ``GET /insights/summary`` — JWT-gated, full breakdown for the staff
+  - ``GET /insights/summary``, JWT-gated, full breakdown for the staff
     dashboard (per-rule firing counts, decision distribution, recent activity).
 
 Computation is intentionally simple SQL aggregates, no caching, no extra tables.
@@ -156,7 +156,7 @@ def full_insights(
     decision_breakdown = [DecisionCount(decision=d, count=c) for d, c in decision_rows]
 
     fourteen_ago = datetime.now(timezone.utc) - timedelta(days=14)
-    # Postgres uses to_char for date formatting — SQLite's strftime is unavailable.
+    # Postgres uses to_char for date formatting, SQLite's strftime is unavailable.
     daily_rows = (
         db.query(
             func.to_char(StaffReview.reviewed_at, "YYYY-MM-DD").label("d"),

@@ -1,6 +1,6 @@
 # Render IaC: one Web Service running the FastAPI backend.
 #
-# Frontend is NOT here — that ships to Vercel. Database + Auth live on Supabase.
+# Frontend is NOT here, that ships to Vercel. Database + Auth live on Supabase.
 #
 # To deploy:
 #   1. Push this repo to GitHub (already done).
@@ -9,8 +9,8 @@
 #   3. Fill in the secret env vars (sync: false below) in the Render dashboard
 #      after the service is created. Values come from msbon-app/backend/.env.
 #   4. First deploy will run `alembic upgrade head` (via /entrypoint.sh) before
-#      starting uvicorn — this creates the tables on the Supabase Postgres if
-#      they don't already exist (idempotent — already applied locally).
+#      starting uvicorn, this creates the tables on the Supabase Postgres if
+#      they don't already exist (idempotent, already applied locally).
 #
 # Free plan caveats:
 #   - Spins down after 15 minutes of zero traffic.
@@ -48,7 +48,7 @@ services:
       - key: DATABASE_MAX_OVERFLOW
         value: "10"
 
-      # ── Secrets — paste these in the Render dashboard ───────────────
+      # ── Secrets, paste these in the Render dashboard ───────────────
       # Mark each as sync: false so Render won't try to read them from this file.
       - key: GEMINI_API_KEY            # mock-... is fine for the demo
         sync: false

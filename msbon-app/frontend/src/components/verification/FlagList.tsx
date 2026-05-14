@@ -37,7 +37,7 @@ export default function FlagList({
         </p>
         <p className="font-sans text-body-md text-charcoal-muted max-w-[44ch]">
           No verification flags were raised on this transcript. The reviewer's job
-          is done — though a confirmation note is still good practice.
+          is done, though a confirmation note is still good practice.
         </p>
       </motion.div>
     );
@@ -73,7 +73,7 @@ export default function FlagList({
             animate={
               flashFlagId === flag.id
                 ? { opacity: 1, y: 0, boxShadow: "0 0 0 2px var(--terracotta)" }
-                : { opacity: 1, y: 0, boxShadow: "0 0 0 0px rgba(184,74,50,0)" }
+                : { opacity: 1, y: 0, boxShadow: "0 0 0 0px rgba(26,58,82,0)" }
             }
             transition={{ duration: 0.5, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
           >

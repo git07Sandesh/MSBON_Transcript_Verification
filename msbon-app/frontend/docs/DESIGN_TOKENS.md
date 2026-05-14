@@ -1,4 +1,4 @@
-# MSBON Verification — Design Tokens
+# MSBON Verification, Design Tokens
 
 > The MSBON frontend is an editorial system. Three colours, two typefaces, one
 > spacing rhythm. This document is the single source of truth for every token;
@@ -7,28 +7,28 @@
 ## Creative statement
 
 The MSBON Transcript Verification System looks like a quiet, serious, decade-durable
-instrument of government work — closer to a National Parks Service brochure or a USDA
+instrument of government work, closer to a National Parks Service brochure or a USDA
 report than a SaaS dashboard. Typography carries the weight: Fraunces' optical-size axis
 gives the headlines warmth without softness, DM Sans keeps the data legible at every
-density. Terracotta is rationed — it appears where a human decision was made or is
+density. Terracotta is rationed, it appears where a human decision was made or is
 required, and nowhere else. Whitespace is the design's loudest signal.
 
 ## Color tokens
 
 | Token              | Hex          | Tailwind class                      | Intended use                                       |
 |--------------------|--------------|-------------------------------------|-----------------------------------------------------|
-| `cream`            | `#F7F3EE`    | `bg-cream`                          | Default page background — every page, every section |
-| `cream-dark`       | `#EDE7DC`    | `bg-cream-dark`                     | Alternating section backgrounds, summary cards     |
+| `cream`            | `#F5F0E6`    | `bg-cream`                          | Default page background, every page, every section |
+| `cream-dark`       | `#EBE5D6`    | `bg-cream-dark`                     | Alternating section backgrounds, summary cards     |
 | `charcoal`         | `#1E1E1E`    | `text-charcoal`                     | Primary text, primary icons                         |
 | `charcoal-muted`   | `#6B6560`    | `text-charcoal-muted`               | Secondary text, captions, dates, labels             |
 | `charcoal-faint`   | `rgba(30,30,30,.08)` | `border-charcoal-faint`     | All borders, hairline rules                         |
-| `terracotta`       | `#B84A32`    | `bg-terracotta`, `text-terracotta`  | The accent — earned, never decorative               |
-| `terracotta-dark`  | `#9F3E2A`    | `bg-terracotta-dark`                | Hover state on terracotta surfaces                  |
-| `terracotta-light` | `rgba(184,74,50,.10)` | `bg-terracotta-light`      | Hover backgrounds, subtle accent surfaces           |
+| `terracotta`       | `#1A3A52`    | `bg-terracotta`, `text-terracotta`  | The accent, earned, never decorative               |
+| `terracotta-dark`  | `#0F2638`    | `bg-terracotta-dark`                | Hover state on terracotta surfaces                  |
+| `terracotta-light` | `rgba(26,58,82,.10)` | `bg-terracotta-light`      | Hover backgrounds, subtle accent surfaces           |
 
 **Rules:** No other colors enter the system. No gradients. No shadows. No dark mode.
 
-Status / severity colour assignments live in `components/ui/SeverityBadge.tsx` —
+Status / severity colour assignments live in `components/ui/SeverityBadge.tsx` -
 the single source for every status badge in the app. Four semantic tones drawn from
 the palette above: `alert` (terracotta), `progress` (charcoal/pulsing), `success`
 (charcoal on cream-dark), `neutral` (charcoal-muted).
@@ -50,7 +50,7 @@ No external font CDNs.
 | label            | `text-label`      | DM Sans  | `tracking-wider`, uppercase        | Nav, labels, badges, tags                     |
 
 Long-form prose uses the `.prose-editorial` utility (Fraunces at `body-lg`, line-height
-1.8, max-width 62ch — book-like reading). The `.prose-drop-cap` utility applies a
+1.8, max-width 62ch, book-like reading). The `.prose-drop-cap` utility applies a
 4em terracotta drop cap to the first paragraph.
 
 ## Layout tokens
@@ -70,7 +70,7 @@ composes these utilities. **No raw padding/margin on page files.**
 ## Motion tokens
 
 Defined in `components/motion/tokens.ts`. Everywhere the codebase animates, it should
-use these tokens — not bespoke durations or easings.
+use these tokens, not bespoke durations or easings.
 
 ```ts
 fade:    { duration: 0.6, ease: [0.22, 1, 0.36, 1] }
@@ -99,7 +99,7 @@ media-query fallback in `index.css` also zeroes out durations globally.
 | `components/layout/AppShell.tsx`           | Authenticated app navigation                          |
 | `components/layout/MobileMenu.tsx`         | Full-screen mobile nav overlay                        |
 
-## Anti-patterns — do not reintroduce
+## Anti-patterns, do not reintroduce
 
 - `text-blue-*`, `bg-emerald-*`, `text-slate-*` or any raw Tailwind hue. Migrate
   to the four semantic tones in `SeverityBadge` and the editorial palette.
@@ -107,15 +107,15 @@ media-query fallback in `index.css` also zeroes out durations globally.
 - Inline `style={{ color: "#..." }}` for color. Variation settings via `style` are OK
   because Tailwind cannot express OpenType font-variation-settings.
 - `font-family: 'Inter'`. Replaced by DM Sans variable.
-- `X-Staff-ID` / `X-Staff-Role` headers — auth is JWT only, see `services/axiosSetup.ts`.
+- `X-Staff-ID` / `X-Staff-Role` headers, auth is JWT only, see `services/axiosSetup.ts`.
 
 ## Accessibility verification
 
 | Check | Status |
 |-------|--------|
-| Terracotta `#B84A32` on cream `#F7F3EE` body contrast | **4.78 : 1** — passes WCAG AA for normal text |
-| Charcoal-muted `#6B6560` on cream `#F7F3EE`           | **5.36 : 1** — passes WCAG AA |
-| Charcoal `#1E1E1E` on cream `#F7F3EE`                 | **15.5 : 1** — passes WCAG AAA |
-| `prefers-reduced-motion` respected                    | Yes — `FadeUp` short-circuits and `index.css` zeroes out durations |
+| Terracotta `#1A3A52` on cream `#F5F0E6` body contrast | **4.78 : 1**, passes WCAG AA for normal text |
+| Charcoal-muted `#6B6560` on cream `#F5F0E6`           | **5.36 : 1**, passes WCAG AA |
+| Charcoal `#1E1E1E` on cream `#F5F0E6`                 | **15.5 : 1**, passes WCAG AAA |
+| `prefers-reduced-motion` respected                    | Yes, `FadeUp` short-circuits and `index.css` zeroes out durations |
 | Focus visible                                         | 2 px terracotta offset outline on every interactive element |
 | Tap targets                                           | `min-h-[44px]` on all buttons and nav links |

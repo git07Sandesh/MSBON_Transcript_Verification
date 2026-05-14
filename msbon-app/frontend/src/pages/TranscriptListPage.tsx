@@ -199,7 +199,7 @@ export default function TranscriptListPage() {
         </div>
       )}
 
-      {/* Compare action bar — slides in when two are selected */}
+      {/* Compare action bar, slides in when two are selected */}
       <AnimatePresence>
         {selected.length >= 1 && (
           <motion.div

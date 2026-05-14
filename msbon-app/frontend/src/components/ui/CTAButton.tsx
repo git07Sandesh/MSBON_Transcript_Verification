@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
 
 /* Strip the DOM props that collide with framer-motion's own animation/drag
- * event signatures — motion redefines onAnimationStart/End and onDragStart/End. */
+ * event signatures, motion redefines onAnimationStart/End and onDragStart/End. */
 type StrippedButtonProps = Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
   | "children"

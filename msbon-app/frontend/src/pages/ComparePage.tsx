@@ -1,6 +1,6 @@
 /* Side-by-side compare of two transcripts. Catches the same applicant
  * submitting two transcripts (different files, same student name; or same
- * institution + different graduation date — the kinds of patterns paper
+ * institution + different graduation date, the kinds of patterns paper
  * review misses).
  *
  * Route: /app/compare?a=<transcriptId>&b=<transcriptId>
@@ -187,7 +187,7 @@ function FieldCell({ field, value, diff }: CellProps) {
         }`}
         style={{ fontVariationSettings: '"opsz" 9, "wght" 400' }}
       >
-        {value ?? <span className="text-charcoal-muted italic">—</span>}
+        {value ?? <span className="text-charcoal-muted italic">-</span>}
       </p>
     </div>
   );

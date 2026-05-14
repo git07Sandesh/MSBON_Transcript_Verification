@@ -12,7 +12,7 @@ from app.database import init_db
 from app.exceptions import MSBONBaseException
 # Eagerly import every ORM model so SQLAlchemy can resolve cross-table
 # back-references (e.g. Transcript.flags -> VerificationFlag) the first
-# time any code path opens a session — including background-task workers.
+# time any code path opens a session, including background-task workers.
 from app.models import orm  # noqa: F401
 
 from app.api.v1 import auth, health, transcripts, reviews, audit, programs, contact, insights, files, reports

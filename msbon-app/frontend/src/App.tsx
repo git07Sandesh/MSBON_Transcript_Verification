@@ -37,7 +37,7 @@ import ComparePage        from "./pages/ComparePage";
 
 const queryClient = new QueryClient();
 
-/* Animate page transitions everywhere — public and authenticated. */
+/* Animate page transitions everywhere, public and authenticated. */
 function AnimatedOutlet() {
   const location = useLocation();
   return (
@@ -92,7 +92,7 @@ function ProtectedLayout() {
   );
 }
 
-/* Login route renders bare (no AppShell) — and bounces to /app/dashboard
+/* Login route renders bare (no AppShell), and bounces to /app/dashboard
  * if a token already exists. */
 function LoginRoute() {
   const token = useUIStore((s) => s.token);

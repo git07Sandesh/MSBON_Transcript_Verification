@@ -31,11 +31,11 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/transcripts", tags=["transcripts"])
 
 # Editorial palette (mirrors frontend tokens).
-CREAM      = colors.HexColor("#F7F3EE")
-CREAM_DARK = colors.HexColor("#EDE7DC")
+CREAM      = colors.HexColor("#F5F0E6")
+CREAM_DARK = colors.HexColor("#EBE5D6")
 CHARCOAL   = colors.HexColor("#1E1E1E")
 CHARCOAL_M = colors.HexColor("#6B6560")
-TERRACOTTA = colors.HexColor("#B84A32")
+TERRACOTTA = colors.HexColor("#1A3A52")
 
 PAGE_W, PAGE_H = LETTER
 MARGIN = 0.85 * inch
@@ -89,7 +89,7 @@ def generate_report(
 
     buf = io.BytesIO()
     c = canvas.Canvas(buf, pagesize=LETTER)
-    c.setTitle(f"MSBON Verification — {transcript.filename}")
+    c.setTitle(f"MSBON Verification, {transcript.filename}")
     c.setAuthor("MSBON Verification System")
 
     # Cream page background
@@ -129,18 +129,18 @@ def generate_report(
     col_w = (PAGE_W - 2 * MARGIN) / 2
     meta_left = [
         ("Transcript ID", transcript.id),
-        ("Uploaded by",   transcript.uploaded_by or "—"),
+        ("Uploaded by",   transcript.uploaded_by or "-"),
         ("Uploaded at",   transcript.uploaded_at.strftime("%Y-%m-%d %H:%M UTC")),
         ("Processed at",  transcript.processed_at.strftime("%Y-%m-%d %H:%M UTC")
-                          if transcript.processed_at else "—"),
+                          if transcript.processed_at else "-"),
     ]
     meta_right = []
     if ed:
         meta_right = [
-            ("Student",        ed.student_name or "—"),
-            ("Institution",    ed.institution_name or "—"),
-            ("Program",        ed.program_name or "—"),
-            ("Graduation",     str(ed.graduation_date) if ed.graduation_date else "—"),
+            ("Student",        ed.student_name or "-"),
+            ("Institution",    ed.institution_name or "-"),
+            ("Program",        ed.program_name or "-"),
+            ("Graduation",     str(ed.graduation_date) if ed.graduation_date else "-"),
             ("Total credits",  f"{sum(float((c.get('credits') or 0)) for c in (json.loads(ed.courses_json) if ed.courses_json else [])):.1f}"),
         ]
 
@@ -181,7 +181,7 @@ def generate_report(
             if y < MARGIN + 130:  # leave space for footer
                 c.setFillColor(CHARCOAL_M)
                 c.setFont("Helvetica-Oblique", 8)
-                c.drawString(MARGIN, MARGIN - 8, "[truncated — additional flags in audit log]")
+                c.drawString(MARGIN, MARGIN - 8, "[truncated, additional flags in audit log]")
                 break
 
             # Severity rail
@@ -236,7 +236,7 @@ def generate_report(
         MARGIN - 26,
         f"Reviewed by {token.get('sub', 'staff')} · "
         f"{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')} · "
-        "Synthetic data only — no automated licensure decisions",
+        "Synthetic data only, no automated licensure decisions",
     )
     c.setStrokeColor(CHARCOAL_M)
     c.line(MARGIN, MARGIN - 16, PAGE_W - MARGIN, MARGIN - 16)

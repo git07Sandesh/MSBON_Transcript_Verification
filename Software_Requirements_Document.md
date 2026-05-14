@@ -9,7 +9,7 @@
 | Version | Date | Author | Description |
 |---------|------|--------|-------------|
 | 0.1 | 2026-05-12 | Team Nexus | Initial draft of capstone SRS |
-| 1.0 | 2026-05-12 | Team Nexus | Baseline SRS — PoC scope, IEEE 830 structure |
+| 1.0 | 2026-05-12 | Team Nexus | Baseline SRS, PoC scope, IEEE 830 structure |
 
 ---
 
@@ -32,7 +32,7 @@
 
 ### 1.1 Purpose
 
-This Software Requirements Specification (SRS) defines the complete functional, non-functional, interface, and data requirements for the **MSBON Fraud-Sensitive Transcript Verification System** — a Proof of Concept (PoC) developed by Team Nexus for the Mississippi State Board of Nursing (MSBON) under the CSC 424 Senior Capstone at The University of Southern Mississippi. This document is the binding contract between the development team and the customer (MSBON). It tells the customer exactly **what** the delivered system will do; the companion Software Design Document (SDD) explains **how** the system implements these requirements.
+This Software Requirements Specification (SRS) defines the complete functional, non-functional, interface, and data requirements for the **MSBON Fraud-Sensitive Transcript Verification System**, a Proof of Concept (PoC) developed by Team Nexus for the Mississippi State Board of Nursing (MSBON) under the CSC 424 Senior Capstone at The University of Southern Mississippi. This document is the binding contract between the development team and the customer (MSBON). It tells the customer exactly **what** the delivered system will do; the companion Software Design Document (SDD) explains **how** the system implements these requirements.
 
 This SRS conforms to IEEE Std 830-1998 in spirit, adapted for an academic capstone deliverable and a single-cycle PoC release. It is the authoritative input to test plans, acceptance review, and the end-of-semester demonstration.
 
@@ -50,7 +50,7 @@ The system automates the **first-pass review** of nursing school transcripts sub
 2. **Extract** structured data from each document using a two-stage pipeline: deterministic OCR/text extraction (`pdfplumber` + Tesseract) followed by a Large Language Model (Google Gemini `gemini-2.0-flash`) that produces normalized JSON.
 3. **Verify** the extracted data against twelve transparent, rule-based fraud and compliance checks across five categories: Graduation, Accreditation, Course Completion, Fraud Indicators, and Formatting.
 4. **Surface** every flag with a human-readable explanation, source excerpt, and severity to the reviewing staff member.
-5. **Capture** the staff member's decision — *Confirmed*, *Overridden*, or *Needs More Information* — along with a free-text justification when required.
+5. **Capture** the staff member's decision, *Confirmed*, *Overridden*, or *Needs More Information*, along with a free-text justification when required.
 6. **Persist** every state change in a tamper-evident audit log that is exportable as CSV or JSON for compliance review.
 
 #### 1.2.3 What the Product Does NOT Do (Out of Scope)
@@ -78,12 +78,12 @@ The system automates the **first-pass review** of nursing school transcripts sub
 
 | Term | Definition |
 |------|------------|
-| MSBON / MSBN | Mississippi State Board of Nursing — the customer |
-| PoC | Proof of Concept — capstone deliverable, not production |
+| MSBON / MSBN | Mississippi State Board of Nursing, the customer |
+| PoC | Proof of Concept, capstone deliverable, not production |
 | OCR | Optical Character Recognition (Tesseract via `pytesseract`) |
 | LLM | Large Language Model (Google Gemini `gemini-2.0-flash`) |
 | SRS / SRD | Software Requirements Specification / Software Requirements Document |
-| SDD | Software Design Document — companion document |
+| SDD | Software Design Document, companion document |
 | ACEN | Accreditation Commission for Education in Nursing |
 | CCNE | Commission on Collegiate Nursing Education |
 | ADN / BSN / MSN | Associate / Bachelor / Master of Science in Nursing |
@@ -107,9 +107,9 @@ The system automates the **first-pass review** of nursing school transcripts sub
 |---|-----------|
 | R-1 | MSBON PoC Scope Document, January 7 2026 |
 | R-2 | MSBON Project Concept, Team Nexus, February 27 2026 |
-| R-3 | Software Design Document (SDD), Team Nexus, v1.0 — `Software_Design_Document.md` |
-| R-4 | Phase 1 Audit Report, 2026-03-29 — `msbon-app/docs/PHASE1_AUDIT_REPORT.md` |
-| R-5 | Phase 2 Implementation Blueprint, 2026-03-29 — `msbon-app/docs/PHASE2_BLUEPRINT.md` |
+| R-3 | Software Design Document (SDD), Team Nexus, v1.0, `Software_Design_Document.md` |
+| R-4 | Phase 1 Audit Report, 2026-03-29, `msbon-app/docs/PHASE1_AUDIT_REPORT.md` |
+| R-5 | Phase 2 Implementation Blueprint, 2026-03-29, `msbon-app/docs/PHASE2_BLUEPRINT.md` |
 | R-6 | IEEE Std 830-1998, *Recommended Practice for Software Requirements Specifications* |
 | R-7 | OWASP Top 10 (2021) |
 | R-8 | NIST SP 800-63B (digital identity guidelines) |
@@ -121,7 +121,7 @@ The system automates the **first-pass review** of nursing school transcripts sub
 
 ### 1.5 Document Overview
 
-Section 2 paints the system in broad strokes: where it sits in the MSBON workflow, who uses it, and what constraints it operates under. Section 3 enumerates every interface the system presents — to users, to other software, and to the network. Section 4 contains the catalog of functional requirements (REQ-FR-***), each numbered, prioritized, and traceable to a use case. Section 5 covers the non-functional requirements (performance, security, reliability, usability). Section 6 captures the primary use cases as actor flows. Section 7 specifies the data model. Section 8 lists external constraints and compliance obligations. Section 9 defines the acceptance criteria and a traceability matrix linking every requirement to a test or demo step. Section 10 holds the appendices.
+Section 2 paints the system in broad strokes: where it sits in the MSBON workflow, who uses it, and what constraints it operates under. Section 3 enumerates every interface the system presents, to users, to other software, and to the network. Section 4 contains the catalog of functional requirements (REQ-FR-***), each numbered, prioritized, and traceable to a use case. Section 5 covers the non-functional requirements (performance, security, reliability, usability). Section 6 captures the primary use cases as actor flows. Section 7 specifies the data model. Section 8 lists external constraints and compliance obligations. Section 9 defines the acceptance criteria and a traceability matrix linking every requirement to a test or demo step. Section 10 holds the appendices.
 
 ---
 
@@ -190,7 +190,7 @@ The system implements seven top-level capabilities. Each is broken down into spe
 | **Viewer** (Compliance auditor) | 1–3 | Quarterly | Audit-focused | Read-only access to transcripts and audit log; no upload, no review |
 | **Developer** (Team Nexus, capstone team) | 5 | During development only | Full-stack | Direct DB / filesystem access in dev environment only |
 
-The **Reviewer** is the primary user — interface design (font size, contrast, button placement, plain-language flag explanations) is optimized for this class first.
+The **Reviewer** is the primary user, interface design (font size, contrast, button placement, plain-language flag explanations) is optimized for this class first.
 
 ### 2.4 Operating Environment
 
@@ -225,7 +225,7 @@ The **Reviewer** is the primary user — interface design (font size, contrast, 
 |---|-------------------------|-------------|
 | A-1 | A valid Google Gemini API key is provisioned in `GEMINI_API_KEY` | Extraction fails with `LLM_UNAVAILABLE`; uploads queue but never process |
 | A-2 | Tesseract OCR is installed on the host (`brew install tesseract` / `apt install tesseract-ocr`) | Image-based transcripts cannot be extracted |
-| A-3 | `libmagic` is installed for MIME validation (`brew install libmagic`) | File-type detection falls back to extension only — security regression |
+| A-3 | `libmagic` is installed for MIME validation (`brew install libmagic`) | File-type detection falls back to extension only, security regression |
 | A-4 | The MSBON-approved accredited program list is seeded into the database | ACCR-001 / ACCR-002 rules over-flag every transcript |
 | A-5 | Reviewers are trained on what each flag category means | Decision quality degrades; `OVERRIDDEN` rate spikes |
 | A-6 | Network access to `generativelanguage.googleapis.com` is permitted | Same as A-1 |
@@ -257,7 +257,7 @@ graph LR
 | UI-002 | The UI shall be operable on viewports 1366×768 and larger; mobile responsiveness is *not* required for the PoC. |
 | UI-003 | The UI shall conform to WCAG 2.1 Level AA contrast ratios for all text on background. |
 | UI-004 | All actionable controls shall be reachable by keyboard navigation (Tab / Shift-Tab / Enter / Space). |
-| UI-005 | Status indicators (transcript status, flag severity) shall convey meaning by *both* color and text/icon — never color alone. |
+| UI-005 | Status indicators (transcript status, flag severity) shall convey meaning by *both* color and text/icon, never color alone. |
 | UI-006 | All asynchronous operations (upload, processing, submit) shall display either a deterministic progress indicator or a textual "in progress" state within 200 ms of trigger. |
 | UI-007 | Server-side errors shall be surfaced to the user with the human-readable `error.message` field; raw stack traces shall never be displayed. |
 | UI-008 | The UI shall obey the design tokens defined in `frontend/docs/DESIGN_TOKENS.md` (no hardcoded colors). |
@@ -339,7 +339,7 @@ The system imposes no special hardware requirements beyond the operating environ
 | FR-036 | The system shall persist extracted data as a `ExtractedData` row linked one-to-one with `Transcript`. | Must | UC-02 |
 | FR-037 | Upon successful extraction, the transcript status shall transition `QUEUED → PROCESSING → EXTRACTED`. | Must | UC-02 |
 | FR-038 | The Gemini API key shall be read from environment variables only; it shall never appear in logs, error messages, or HTTP responses. | Must | NFR-SEC |
-| FR-039 | The system *may* support pluggable LLM providers via an `LLMAdapter` interface for future replacement. | May | — |
+| FR-039 | The system *may* support pluggable LLM providers via an `LLMAdapter` interface for future replacement. | May |, |
 
 ### 4.4 Verification (Rule Engine) (F4)
 
@@ -347,7 +347,7 @@ The system imposes no special hardware requirements beyond the operating environ
 |----|-------------|:--------:|-------|
 | FR-040 | After successful extraction, the system shall automatically invoke the Rule Engine over the extracted JSON. | Must | UC-02 |
 | FR-041 | The Rule Engine shall load the active rule set from the `flagging_rules` table (only rows with `is_active=true`). | Must | UC-02 |
-| FR-042 | The system shall implement and ship the following twelve rules — see §10.2 for the canonical reference: GRAD-001, GRAD-002, ACCR-001, ACCR-002, COUR-001, COUR-002, FRAU-001, FRAU-002, FRAU-003, FORM-001, FORM-002, FORM-003. | Must | UC-02, UC-03 |
+| FR-042 | The system shall implement and ship the following twelve rules, see §10.2 for the canonical reference: GRAD-001, GRAD-002, ACCR-001, ACCR-002, COUR-001, COUR-002, FRAU-001, FRAU-002, FRAU-003, FORM-001, FORM-002, FORM-003. | Must | UC-02, UC-03 |
 | FR-043 | Every emitted flag shall include `rule_id`, `severity` (HIGH / MEDIUM / LOW), `message`, `source_excerpt` (verbatim text from the transcript), and `explanation` (≥ 1 plain-language sentence). | Must | UC-03 |
 | FR-044 | Verification results shall be persisted as `VerificationFlag` rows linked to the parent transcript. | Must | UC-02 |
 | FR-045 | Upon completion, the transcript status shall transition `EXTRACTED → AWAITING_REVIEW` if any flags exist, or `EXTRACTED → CLEARED` if zero flags. | Must | UC-02 |
@@ -355,7 +355,7 @@ The system imposes no special hardware requirements beyond the operating environ
 | FR-047 | The system shall allow the active rule set to be modified by an `admin` user via `PATCH /api/v1/rules/{rule_id}` (toggle `is_active`). | Should | UC-07 |
 | FR-048 | Rule evaluation shall be deterministic: identical extracted JSON + identical active rule set shall always yield identical flags. | Must | NFR-REL |
 | FR-049 | A failure inside any single rule shall not prevent other rules from running; the failed rule shall produce a flag of severity HIGH with `rule_id="RULE_INTERNAL_ERROR"`. | Should | NFR-REL |
-| FR-050 | The system *should* allow admins to add custom rules via configuration without code changes (post-PoC). | May | — |
+| FR-050 | The system *should* allow admins to add custom rules via configuration without code changes (post-PoC). | May |, |
 | FR-051 | The Rule Engine shall complete evaluation of a single transcript within 2 s on PoC reference hardware (M1 MacBook). | Must | NFR-PERF |
 | FR-052 | Accreditation rules shall consult the `accredited_programs` catalog (institution name, body, `is_active`); rules shall *not* hardcode program names. | Must | UC-07 |
 
@@ -367,17 +367,17 @@ The system imposes no special hardware requirements beyond the operating environ
 | FR-061 | The system shall provide `GET /api/v1/transcripts/{id}` returning the transcript, its extracted data, and all flags. | Must | UC-03 |
 | FR-062 | The Verification page shall display flags grouped by severity (HIGH first, then MEDIUM, then LOW). | Must | UC-03 |
 | FR-063 | Each flag shall be expandable to show the `source_excerpt` and `explanation` inline. | Must | UC-03 |
-| FR-064 | The Review form shall provide three exclusive decision controls — `CONFIRMED`, `OVERRIDDEN`, `NEEDS_MORE_INFO` — selectable by mouse or keyboard. | Must | UC-03 |
+| FR-064 | The Review form shall provide three exclusive decision controls, `CONFIRMED`, `OVERRIDDEN`, `NEEDS_MORE_INFO`, selectable by mouse or keyboard. | Must | UC-03 |
 | FR-065 | If `OVERRIDDEN` is selected, the user shall be required to enter an `override_reason` of at least 10 characters before submission. | Must | UC-03 |
 | FR-066 | Submission shall be a single `POST /api/v1/transcripts/{id}/reviews` carrying `{decision, override_reason?, annotation?}`. | Must | UC-03 |
 | FR-067 | Upon successful submission, the transcript status shall transition to `REVIEWED` and an audit entry `REVIEW_SUBMITTED` shall be written. | Must | UC-03, UC-06 |
 | FR-068 | A transcript may be reviewed multiple times; each review shall be persisted as a separate `StaffReview` row. The most recent decision is the operative one. | Should | UC-03 |
 | FR-069 | The system shall reject review submissions on transcripts whose status is not in `{AWAITING_REVIEW, REVIEWED}` with HTTP 409. | Must | UC-03 |
 | FR-070 | A reviewer with the `viewer` role shall be able to read flags but shall be denied submission with HTTP 403. | Must | UC-03 |
-| FR-071 | The system shall record `reviewer_id` from the JWT `sub` claim — never from a request body field. | Must | NFR-SEC |
+| FR-071 | The system shall record `reviewer_id` from the JWT `sub` claim, never from a request body field. | Must | NFR-SEC |
 | FR-072 | The UI shall provide a confirmation prompt (modal or inline) before a `OVERRIDDEN` submission is sent. | Should | UC-03 |
 | FR-073 | The system shall allow free-text reviewer annotations of up to 2,000 characters per review. | Should | UC-03 |
-| FR-074 | The system *may* allow attaching supporting documents to a review (post-PoC). | May | — |
+| FR-074 | The system *may* allow attaching supporting documents to a review (post-PoC). | May |, |
 
 ### 4.6 Audit Log (F6)
 
@@ -406,7 +406,7 @@ The system imposes no special hardware requirements beyond the operating environ
 | FR-095 | Program changes shall be captured in the audit log (`PROGRAM_CREATED`, `PROGRAM_UPDATED`, `PROGRAM_DEACTIVATED`). | Must | UC-06, UC-07 |
 | FR-096 | The system shall validate that `accreditation_body ∈ {ACEN, CCNE}` and reject other values with HTTP 422. | Must | UC-07 |
 | FR-097 | The Programs page shall present an inline editor with role-based visibility (Reviewers see read-only; Admins see editable). | Must | UC-07 |
-| FR-098 | The system *should* provide a bulk-import endpoint for CSV upload of programs (admin only). | May | — |
+| FR-098 | The system *should* provide a bulk-import endpoint for CSV upload of programs (admin only). | May |, |
 | FR-099 | The system *should* warn at upload time if `accreditation_expires` is within 90 days. | Should | UC-07 |
 
 ---
@@ -434,7 +434,7 @@ The system imposes no special hardware requirements beyond the operating environ
 | NFR-SEC-05 | The system shall mitigate the OWASP Top 10 (2021): Broken Access Control (RBAC), Cryptographic Failures (TLS + secret hygiene), Injection (parameterized SQL via ORM), Insecure Design (threat model in SDD §7.1), Security Misconfiguration (env validation), Vulnerable Components (`pip-audit` in CI), ID&Auth Failures (JWT expiry), SSRF (no user-supplied URLs reach the LLM call). |
 | NFR-SEC-06 | File uploads shall be rejected if the detected MIME type does not match the claimed extension. |
 | NFR-SEC-07 | The system shall set `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, and `Strict-Transport-Security` headers on every response in production. |
-| NFR-SEC-08 | All authorization decisions shall come from the JWT payload — never from request bodies, query parameters, or non-`Authorization` headers. |
+| NFR-SEC-08 | All authorization decisions shall come from the JWT payload, never from request bodies, query parameters, or non-`Authorization` headers. |
 | NFR-SEC-09 | The audit log shall be append-only at the application layer (`AuditRepository.update`/`delete` raise `OperationNotPermittedError`). |
 | NFR-SEC-10 | Error responses shall not include stack traces, file paths, or framework internals in production. |
 
@@ -443,7 +443,7 @@ The system imposes no special hardware requirements beyond the operating environ
 | ID | Requirement |
 |----|-------------|
 | NFR-REL-01 | The Gemini LLM adapter shall retry on transient errors (5xx, 429, network timeouts) up to 3 times with exponential back-off; non-transient errors (401, 400) shall fail fast. |
-| NFR-REL-02 | A failure in the extraction pipeline shall leave the database in a consistent state — either the full `(Transcript, ExtractedData, AuditLog)` triple is committed or none of it is. |
+| NFR-REL-02 | A failure in the extraction pipeline shall leave the database in a consistent state, either the full `(Transcript, ExtractedData, AuditLog)` triple is committed or none of it is. |
 | NFR-REL-03 | The system shall recover automatically from a process restart: queued / processing transcripts shall be retried by the next start. |
 | NFR-REL-04 | The system shall expose `/api/v1/health` returning `{status, database, version, timestamp}` for readiness probes. |
 | NFR-REL-05 | Target availability for a hosted deployment: ≥ 99 % over a calendar month. |
@@ -483,7 +483,7 @@ The system imposes no special hardware requirements beyond the operating environ
 |----|-------------|
 | NFR-PRIV-01 | Only synthetic / de-identified transcripts shall be used during development and demonstration. |
 | NFR-PRIV-02 | Original uploaded files shall be deleted after the configurable retention window (`FILE_RETENTION_HOURS`, default 24 h). |
-| NFR-PRIV-03 | Audit log entries shall not contain raw transcript text — only `transcript_id` references. |
+| NFR-PRIV-03 | Audit log entries shall not contain raw transcript text, only `transcript_id` references. |
 | NFR-PRIV-04 | The system shall not transmit transcript content to any third party other than the configured LLM provider. |
 | NFR-PRIV-05 | The system shall provide an admin operation to permanently purge a transcript and all dependent records (cascades) in support of right-to-erasure requests. *(Phase B)* |
 
@@ -523,7 +523,7 @@ graph LR
     System --> UC06
 ```
 
-### 6.2 UC-01 — Authenticate
+### 6.2 UC-01, Authenticate
 
 **Primary Actor:** Reviewer / Admin / Viewer.
 **Preconditions:** User has valid credentials provisioned by an Admin.
@@ -541,7 +541,7 @@ graph LR
 - 3a. Credentials invalid → return HTTP 401, display "Invalid credentials," write `AUTH_DENIED` audit entry.
 - 4a. Token signing fails → return HTTP 500, display generic error.
 
-### 6.3 UC-02 — Upload Transcript
+### 6.3 UC-02, Upload Transcript
 
 **Primary Actor:** Reviewer / Admin.
 **Preconditions:** User authenticated; Gemini API key configured; Tesseract installed.
@@ -563,7 +563,7 @@ graph LR
 - 5a. OCR/extraction fails → status `FAILED`, `EXTRACTION_FAILED` audit entry, surfaced as red row in UI.
 - 5b. LLM unavailable → 3 retries with back-off; if all fail, same as 5a but error code `LLM_UNAVAILABLE`.
 
-### 6.4 UC-03 — Review Flagged Transcript
+### 6.4 UC-03, Review Flagged Transcript
 
 **Primary Actor:** Reviewer.
 **Preconditions:** Transcript is in status `AWAITING_REVIEW` or `REVIEWED`.
@@ -584,7 +584,7 @@ graph LR
 - 7a. Submission rejected because status was already `CLEARED` → HTTP 409, no state change.
 - 7b. Viewer role attempts submission → HTTP 403, no state change.
 
-### 6.5 UC-04 — Browse Transcript List
+### 6.5 UC-04, Browse Transcript List
 
 **Primary Actor:** Reviewer / Admin / Viewer.
 **Trigger:** User opens the Transcript List page.
@@ -595,7 +595,7 @@ graph LR
 3. Filter chips allow narrowing by status; sort by uploaded_at.
 4. Clicking a row navigates to the Verification page (UC-03).
 
-### 6.6 UC-05 — Export Audit Log
+### 6.6 UC-05, Export Audit Log
 
 **Primary Actor:** Admin / Viewer (compliance auditor).
 **Trigger:** User clicks *Export CSV* on the Audit Log page.
@@ -606,14 +606,14 @@ graph LR
 3. System queries the matching audit rows and streams a `text/csv` (or `application/json`) response with `Content-Disposition: attachment`.
 4. Browser saves the file `audit_export_{timestamp}.csv`.
 
-### 6.7 UC-06 — Audit Every State Change (System)
+### 6.7 UC-06, Audit Every State Change (System)
 
 **Primary Actor:** System (no human trigger).
 **Trigger:** Any state-changing handler in the API or services layer.
 
 **Main Success Scenario:** Each handler calls `AuditService.log(action_type, transcript_id?, actor, detail)` *inside the same database transaction* as the state change, ensuring atomicity. The audit row is uneditable thereafter (NFR-SEC-09).
 
-### 6.8 UC-07 — Manage Program Catalog
+### 6.8 UC-07, Manage Program Catalog
 
 **Primary Actor:** Admin.
 **Trigger:** Admin opens the Programs page.
@@ -625,7 +625,7 @@ graph LR
 4. System writes `PROGRAM_CREATED` audit entry.
 5. New program is immediately consulted by ACCR-001 / ACCR-002 on subsequent verifications.
 
-### 6.9 Sequence Diagram — End-to-End Verification
+### 6.9 Sequence Diagram, End-to-End Verification
 
 ```mermaid
 sequenceDiagram
@@ -847,20 +847,20 @@ stateDiagram-v2
 
 ### 9.2 Functional Requirement → Use Case → Test Traceability
 
-> **Legend:** ✓ = covered by automated test, △ = covered by manual demo step, — = pending Phase B/C.
+> **Legend:** ✓ = covered by automated test, △ = covered by manual demo step,, = pending Phase B/C.
 
 | Requirement | Use Case | Test Type | Status |
 |-------------|----------|-----------|:------:|
 | FR-001..010 (Auth) | UC-01 | Integration (`tests/test_auth.py`) | △ |
 | FR-020..029 (Upload) | UC-02 | Integration + manual | △ |
-| FR-030..039 (Extraction) | UC-02 | Integration + mocked LLM | — |
+| FR-030..039 (Extraction) | UC-02 | Integration + mocked LLM |, |
 | FR-040..052 (Rules) | UC-02, UC-03 | Unit (per rule) | △ |
 | FR-060..074 (Review) | UC-03 | Integration | △ |
 | FR-080..089 (Audit) | UC-06 | Integration | △ |
 | FR-090..099 (Programs) | UC-07 | Integration | △ |
 | NFR-PERF-01..05 | All | Manual stopwatch | △ |
 | NFR-SEC-01..10 | All | Code review + `pip-audit` | △ |
-| NFR-USE-01..05 | All | UAT | — |
+| NFR-USE-01..05 | All | UAT |, |
 
 ### 9.3 Demo Script (recorded presentation)
 
@@ -889,7 +889,7 @@ The capstone demonstration shall execute the following flow on screen (timing ap
 | Documentation Quality (5 %) | This document + SDD + READMEs |
 | Project Presentation (20 %) | Recorded walkthrough per §9.3 |
 
-### 10.2 Flagging Rules Reference (canonical list — same as SDD §5.4)
+### 10.2 Flagging Rules Reference (canonical list, same as SDD §5.4)
 
 | Rule ID | Name | Category | Severity | Trigger |
 |---------|------|----------|:--------:|---------|
@@ -936,4 +936,4 @@ The full keystroke-level demo script is maintained in `docs/DEMO_SCRIPT.md` (cre
 
 ---
 
-*End of Software Requirements Specification — MSBON Transcript Verification System v1.0 PoC.*
+*End of Software Requirements Specification, MSBON Transcript Verification System v1.0 PoC.*

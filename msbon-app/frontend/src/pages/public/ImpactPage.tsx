@@ -76,7 +76,7 @@ export default function ImpactPage() {
             style={{ fontVariationSettings: '"opsz" 9, "wght" 400' }}
           >
             A proof of concept against synthetic transcripts. The numbers are small on
-            purpose — what matters is that every flag is explainable and every decision
+            purpose, what matters is that every flag is explainable and every decision
             is owned.
           </p>
         </FadeUp>
@@ -114,7 +114,7 @@ export default function ImpactPage() {
                 </div>
               </div>
               <figcaption className="mt-3 font-sans text-body-sm text-charcoal-muted">
-                Synthetic transcript — synthetic data, no real applicant.
+                Synthetic transcript, synthetic data, no real applicant.
               </figcaption>
             </figure>
           </FadeUp>
@@ -129,7 +129,7 @@ export default function ImpactPage() {
                 The proof-of-concept ships with three synthetic PDFs. The clean BSN
                 graduate from the University of Southern Mississippi passes every rule
                 and lands in <em>Cleared</em>. The accelerated-BSN candidate from a
-                fictional online institute fires four flags in seconds — including the
+                fictional online institute fires four flags in seconds, including the
                 hard one, an enrollment-to-graduation duration that no real program
                 allows. The third transcript is honestly incomplete; it is missing a
                 graduation date and triggers exactly the rules a paper reviewer would
@@ -142,7 +142,7 @@ export default function ImpactPage() {
               </p>
             </div>
             <p className="mt-8 font-sans text-body-sm italic text-terracotta-dark">
-              Synthetic data — proof of concept, not production.
+              Synthetic data, proof of concept, not production.
             </p>
           </FadeUp>
         </div>

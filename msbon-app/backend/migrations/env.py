@@ -30,7 +30,7 @@ target_metadata = Base.metadata
 
 
 # Use the same DATABASE_URL the running app uses. settings comes from
-# pydantic-settings, which reads .env at import time — so this works whether
+# pydantic-settings, which reads .env at import time, so this works whether
 # alembic is invoked manually from a shell or programmatically by init_db().
 _DATABASE_URL = settings.database_url
 

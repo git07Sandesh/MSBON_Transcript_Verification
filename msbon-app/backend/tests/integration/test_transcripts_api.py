@@ -3,7 +3,7 @@ import io
 import pytest
 from unittest.mock import patch, MagicMock
 
-# conftest is in fixtures/ — add it to pytest path
+# conftest is in fixtures/, add it to pytest path
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "fixtures"))
 from conftest import *  # noqa: F403, F401

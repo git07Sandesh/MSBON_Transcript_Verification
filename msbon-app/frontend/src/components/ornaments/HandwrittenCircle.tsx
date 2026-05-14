@@ -1,4 +1,4 @@
-/* Imperfect circle/oval — used to "circle" a number or word inline, the way
+/* Imperfect circle/oval, used to "circle" a number or word inline, the way
  * a reviewer might mark something on a printed page with a pen.
  */
 import type { ReactNode } from "react";

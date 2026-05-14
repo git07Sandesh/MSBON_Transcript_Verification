@@ -9,7 +9,7 @@ Run:
     python -m scripts.seed_supabase_users
 
 The role is written to ``app_metadata.role`` (NOT user_metadata) per the
-Supabase security checklist — only ``app_metadata`` is safe for
+Supabase security checklist, only ``app_metadata`` is safe for
 authorization decisions.
 """
 from __future__ import annotations
@@ -64,13 +64,13 @@ def upsert_demo_user(client: Client, email: str, password: str, role: str) -> st
         created = client.auth.admin.create_user({
             "email": email,
             "password": password,
-            "email_confirm": True,        # skip the confirmation email — demo only
+            "email_confirm": True,        # skip the confirmation email, demo only
             "app_metadata": app_metadata,
         })
         user = getattr(created, "user", created)
         return f"created  {email}  → {user.id}  role={role}"
 
-    # Already exists — make sure role is current and password still works.
+    # Already exists, make sure role is current and password still works.
     user_id = existing.id
     client.auth.admin.update_user_by_id(user_id, {
         "password": password,

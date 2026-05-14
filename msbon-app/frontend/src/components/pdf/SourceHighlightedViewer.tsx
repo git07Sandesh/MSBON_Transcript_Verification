@@ -10,7 +10,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
 import type { PDFDocumentProxy } from "pdfjs-dist";
-// pdfjs worker URL — Vite resolves this and serves the asset.
+// pdfjs worker URL, Vite resolves this and serves the asset.
 // The ?url suffix is a Vite trick.
 import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import {
@@ -43,7 +43,7 @@ interface Props {
 }
 
 const SEVERITY_COLOR: Record<string, string> = {
-  HIGH:   "rgba(184, 74, 50, 0.32)",   // terracotta @ 32%
+  HIGH:   "rgba(26, 58, 82, 0.32)",   // terracotta @ 32%
   MEDIUM: "rgba(30, 30, 30, 0.20)",
   LOW:    "rgba(107, 101, 96, 0.18)",
 };
@@ -126,7 +126,7 @@ async function buildHighlights(
   return out;
 }
 
-/* Custom highlight container — renders a TextHighlight with severity colour. */
+/* Custom highlight container, renders a TextHighlight with severity colour. */
 function HighlightContainer({ onClick }: { onClick?: (flagId: string) => void }) {
   const ctx = useHighlightContainerContext<FlagHighlight>();
   const highlight = ctx.highlight;

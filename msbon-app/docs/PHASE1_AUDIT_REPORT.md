@@ -28,7 +28,7 @@
 ### FE-001
 **[CRITICAL] | [TYPE SAFETY] | [ProgramsPage.tsx:38]**
 Problem: Unsafe type assertion with `as any` bypasses type checking.
-Evidence: Line 38: `mutationFn: () => addProgram({ ...form, accreditation_expires: form.accreditation_expires || null } as any)` — the `as any` cast on an object passed to `addProgram()` defeats type safety. The form state type mismatch is unresolved.
+Evidence: Line 38: `mutationFn: () => addProgram({ ...form, accreditation_expires: form.accreditation_expires || null } as any)`, the `as any` cast on an object passed to `addProgram()` defeats type safety. The form state type mismatch is unresolved.
 Fix: Define a proper type for the form object state that aligns with the `Program` type, or create an intermediate typed converter function instead of asserting `as any`.
 Flags: Type safety regression, runtime error risk
 
@@ -55,7 +55,7 @@ Flags: Error handling vulnerability, production crash risk
 ### FE-003
 **[MAJOR] | [ERROR HANDLING] | [ReviewForm.tsx:38]**
 Problem: Unsafe error type assertion in mutation error callback.
-Evidence: Line 38-39: `onError: (err: any) => { setError(err?.response?.data?.error?.message || "Submission failed."); }` — same pattern as FE-002 with `any` for error handling without proper type narrowing.
+Evidence: Line 38-39: `onError: (err: any) => { setError(err?.response?.data?.error?.message || "Submission failed."); }`, same pattern as FE-002 with `any` for error handling without proper type narrowing.
 Fix: Use the correct error type from react-query or add explicit type guard before accessing nested properties.
 Flags: Error handling vulnerability
 
@@ -91,7 +91,7 @@ Flags: Testing difficulty, separation of concerns violation
 
 ### FE-006
 **[MAJOR] | [PERFORMANCE] | [TranscriptListPage.tsx:24]**
-Problem: Automatic polling without conditional logic — refetches every 5 seconds regardless of user activity, tab visibility, or data staleness.
+Problem: Automatic polling without conditional logic, refetches every 5 seconds regardless of user activity, tab visibility, or data staleness.
 Evidence: Line 24: `refetchInterval: 5000`
 Fix:
 ```typescript
@@ -110,7 +110,7 @@ Flags: Battery drain on mobile, excessive server load, unnecessary network traff
 ### FE-007
 **[MAJOR] | [PERFORMANCE] | [VerificationPage.tsx:16-17]**
 Problem: Complex refetchInterval callback with fragile data dependency.
-Evidence: Lines 16-17: `refetchInterval: (data) => data && ["FLAGGED", "CLEAR", "REVIEWED"].includes(data.status) ? false : 3000` — fragile if data is null/undefined during initial load.
+Evidence: Lines 16-17: `refetchInterval: (data) => data && ["FLAGGED", "CLEAR", "REVIEWED"].includes(data.status) ? false : 3000`, fragile if data is null/undefined during initial load.
 Fix:
 ```typescript
 const getRefetchInterval = (data: TranscriptDetail | undefined) => {
@@ -143,7 +143,7 @@ Flags: WCAG 2.1 Level A violation, accessibility lawsuit risk
 ### FE-009
 **[MAJOR] | [ACCESSIBILITY] | [AuditLogTable.tsx:35-37]**
 Problem: Outcome status badge lacks semantic markup for assistive technology.
-Evidence: Lines 35-37: `<span className={...}>SUCCESS</span>` — not semantically meaningful to screen readers.
+Evidence: Lines 35-37: `<span className={...}>SUCCESS</span>`, not semantically meaningful to screen readers.
 Fix: `<span className={...} role="status" aria-label={`Outcome: ${log.outcome}`}>{log.outcome}</span>`
 Flags: Screen reader incompatibility
 
@@ -203,7 +203,7 @@ Flags: Inconsistent error handling, poor UX for failures
 
 ### FE-014
 **[MAJOR] | [COMPONENT ARCHITECTURE] | [VerificationPage.tsx:1-54]**
-Problem: Heavy component with mixed concerns — data fetching, UI logic, state management all in one component body.
+Problem: Heavy component with mixed concerns, data fetching, UI logic, state management all in one component body.
 Evidence: Lines 1-54: query setup, refetch logic, status filtering, and conditional rendering all co-located.
 Fix: Extract data fetching to `src/hooks/useTranscriptDetail.ts`. Simplify VerificationPage to render UI only.
 Flags: Testing difficulty, reusability, maintainability
@@ -285,7 +285,7 @@ Flags: Low risk, defensive coding improvement
 ### FE-023
 **[MINOR] | [COMPONENT ARCHITECTURE] | [AuditLogPage.tsx:37-39]**
 Problem: Conditional rendering of filter component based on route parameter creates unclear component contracts.
-Evidence: Lines 37-39: `{!id && <AuditLogFilters ... />}` — behavior changes based on URL route with no explicit documentation.
+Evidence: Lines 37-39: `{!id && <AuditLogFilters ... />}`, behavior changes based on URL route with no explicit documentation.
 Fix: Make disabled state explicit: `<AuditLogFilters disabled={!!id} />`
 Flags: Component contract clarity
 
@@ -302,7 +302,7 @@ Flags: API contract ambiguity
 
 ### FE-025
 **[MINOR] | [CODE QUALITY] | [TranscriptListPage.tsx:28]**
-Problem: Error caught and displayed as generic message but error object discarded — no logging, no detail.
+Problem: Error caught and displayed as generic message but error object discarded, no logging, no detail.
 Evidence: Line 28: `if (error) return <div className="p-8 text-red-500">Failed to load transcripts.</div>;`
 Fix: Add `console.error('Failed to load transcripts:', error);` and display `error.message` if available.
 Flags: Debugging difficulty, poor UX
@@ -338,7 +338,7 @@ Flags: Maintainability, readability
 
 ### FE-029
 **[MINOR] | [COMPONENT ARCHITECTURE] | [ReviewForm.tsx:31,62-69]**
-Problem: `decision === "OVERRIDDEN"` conditional checked twice — in mutation payload and in render.
+Problem: `decision === "OVERRIDDEN"` conditional checked twice, in mutation payload and in render.
 Evidence: Lines 31 and 62-69: same conditional duplicated.
 Fix: Extract decision-specific rendering to a subcomponent or custom hook.
 Flags: DRY violation
@@ -414,7 +414,7 @@ Flags: Defensive coding
 ### BE-001
 **[CRITICAL] | [Architecture & Design] | [config.py:7; database.py:14-16]**
 Problem: No environment validation at startup. Missing `GEMINI_API_KEY` silently defaults to empty string and only fails when the LLM is first called.
-Evidence: `config.py` line 7: `gemini_api_key: str = ""` — no required constraint. Health check only tests key presence, not validity.
+Evidence: `config.py` line 7: `gemini_api_key: str = ""`, no required constraint. Health check only tests key presence, not validity.
 Fix: Add Pydantic `Field(..., min_length=10)` with `field_validator` to enforce non-empty, valid-format key at startup. Raise `ValueError` on empty or placeholder values.
 Flags: Production blocker, silent failure vulnerability
 
@@ -440,7 +440,7 @@ Flags: Data integrity risk, orphaned files accumulate
 
 ### BE-004
 **[MINOR] | [Architecture & Design] | [base_repository.py:25-26]**
-Problem: Generic repository `list_all()` fetches everything unbounded — no pagination, filtering, or batch operations.
+Problem: Generic repository `list_all()` fetches everything unbounded, no pagination, filtering, or batch operations.
 Evidence: `base_repository.py` lines 25-26: `list_all()` has no limit or skip parameters.
 Fix: Add `list_paginated(skip: int, limit: int) -> tuple[list[ModelT], int]` and `bulk_save(instances: list[ModelT])` methods.
 Flags: Scalability concern
@@ -450,7 +450,7 @@ Flags: Scalability concern
 ### BE-005
 **[CRITICAL] | [API Design] | [programs.py:24,27-28; transcripts.py:29; reviews.py:17]**
 Problem: Authentication relies entirely on client-supplied HTTP headers with no validation. Any client can claim any role or identity.
-Evidence: `programs.py` lines 27-28: `if x_staff_role != "admin"` — header value comes directly from user input, never cryptographically verified. No JWT, no bearer token, no signature validation.
+Evidence: `programs.py` lines 27-28: `if x_staff_role != "admin"`, header value comes directly from user input, never cryptographically verified. No JWT, no bearer token, no signature validation.
 Fix: Implement `HTTPBearer` with `jwt.decode()` validation. Store role in JWT payload. Replace all header-based auth with `Depends(verify_token)` on every protected route.
 Flags: CRITICAL security vulnerability; any client can impersonate any role
 
@@ -549,7 +549,7 @@ Flags: Privilege escalation; reviewer identity not enforced
 ### BE-016
 **[MINOR] | [Dependency Management] | [extraction_service.py:25]**
 Problem: Hard dependency on `LLMAdapter` instantiation makes testing fragile.
-Evidence: `extraction_service.py` line 25: `self.llm = llm_adapter or LLMAdapter()` — optional injection.
+Evidence: `extraction_service.py` line 25: `self.llm = llm_adapter or LLMAdapter()`, optional injection.
 Fix: Make injection required: `def __init__(self, db: Session, llm_adapter: LLMAdapter) -> None:`
 Flags: Testability
 
@@ -575,7 +575,7 @@ Flags: Production blocker; no observability
 
 ### BE-019
 **[MINOR] | [Logging & Observability] | [services/audit_service.py:33,55]**
-Problem: `action_detail` stored as a JSON-serialized string via `json.dumps()` and deserialized via `json.loads()` on export — fragile double serialization.
+Problem: `action_detail` stored as a JSON-serialized string via `json.dumps()` and deserialized via `json.loads()` on export, fragile double serialization.
 Evidence: `audit_service.py` line 33: `action_detail=json.dumps(action_detail)`. Line 55: `json.loads(log.action_detail)`.
 Fix: Use SQLAlchemy native `JSON` column type so `action_detail` is stored and read as a Python dict natively.
 Flags: Reliability; serialization bugs
@@ -585,7 +585,7 @@ Flags: Reliability; serialization bugs
 ### BE-020
 **[CRITICAL] | [Configuration Management] | [.env; config.py]**
 Problem: Real API key present in `.env` file. While `.gitignore` lists `.env`, the file exists on disk and is one accidental commit away from leaking permanently.
-Evidence: `backend/.env` line 2: `GEMINI_API_KEY=AIza...` — actual key value present.
+Evidence: `backend/.env` line 2: `GEMINI_API_KEY=AIza...`, actual key value present.
 Fix: Rotate the API key immediately. For production, use GCP Secret Manager, AWS Secrets Manager, or HashiCorp Vault. Inject secrets at runtime via environment, never in files.
 Flags: CRITICAL; secrets management required for production
 
@@ -593,8 +593,8 @@ Flags: CRITICAL; secrets management required for production
 
 ### BE-021
 **[MINOR] | [Configuration Management] | [config.py:14]**
-Problem: `file_retention_hours: int = 24` is defined but never used — uploaded files accumulate on disk indefinitely.
-Evidence: `config.py` line 14: `file_retention_hours: int = 24` — no cleanup service references this.
+Problem: `file_retention_hours: int = 24` is defined but never used, uploaded files accumulate on disk indefinitely.
+Evidence: `config.py` line 14: `file_retention_hours: int = 24`, no cleanup service references this.
 Fix: Create a `CleanupService` that deletes uploads older than `file_retention_hours`. Schedule via APScheduler on startup.
 Flags: Disk space leak
 
@@ -612,7 +612,7 @@ Flags: Concurrent DB access risk
 ### BE-023
 **[MINOR] | [Scalability] | [database.py:17-18]**
 Problem: No explicit connection pool configuration. SQLite in file mode is not suitable for production concurrent writes.
-Evidence: `database.py` lines 17-18: `create_engine(db_url, connect_args=connect_args, echo=False)` — no `pool_size`, `max_overflow`, or `pool_recycle`.
+Evidence: `database.py` lines 17-18: `create_engine(db_url, connect_args=connect_args, echo=False)`, no `pool_size`, `max_overflow`, or `pool_recycle`.
 Fix: For SQLite: explicit `NullPool`. For PostgreSQL (production): `QueuePool(pool_size=10, max_overflow=20, pool_recycle=3600, pool_pre_ping=True)`. Migrate to PostgreSQL for production.
 Flags: Production scaling blocker
 
@@ -635,7 +635,7 @@ Flags: Production scaling blocker
 ### DB-001
 **[CRITICAL] | [INDEXES] | [transcript.py:15-35; transcript_repository.py:28-30; audit_repository.py:29; review_repository.py:14]**
 Problem: No database indexes exist on any foreign key columns or commonly-queried fields. Will cause full table scans as data grows beyond 10K records.
-Evidence: `transcript_repository.py` line 28: `query.filter(Transcript.status == status_filter)` — full table scan. Line 30: `order_by(Transcript.uploaded_at.desc())` — no index for sort. `audit_repository.py` line 29: compound filter on `transcript_id` + `order_by(timestamp)` — no index.
+Evidence: `transcript_repository.py` line 28: `query.filter(Transcript.status == status_filter)`, full table scan. Line 30: `order_by(Transcript.uploaded_at.desc())`, no index for sort. `audit_repository.py` line 29: compound filter on `transcript_id` + `order_by(timestamp)`, no index.
 Fix: Add `__table_args__` with `Index(...)` to all ORM models:
 ```python
 # Transcript:
@@ -655,7 +655,7 @@ Flags: BLOCKING for production
 ### DB-002
 **[CRITICAL] | [CONSTRAINTS] | [audit_log.py:17-19; verification_flag.py:19-24; staff_review.py:17-19; extracted_data.py:17-19]**
 Problem: Foreign keys to `transcripts.id` have no `ondelete` cascade. Deleting a transcript leaves orphaned records in all child tables, violating referential integrity and the audit trail.
-Evidence: `audit_log.py` line 17-19: `ForeignKey("transcripts.id"), nullable=True` — no cascade. Same pattern in `verification_flag.py`, `extracted_data.py`, `staff_review.py`.
+Evidence: `audit_log.py` line 17-19: `ForeignKey("transcripts.id"), nullable=True`, no cascade. Same pattern in `verification_flag.py`, `extracted_data.py`, `staff_review.py`.
 Fix: Add `ondelete="CASCADE"` to all FKs pointing to `transcripts.id`. Use `ondelete="RESTRICT"` for `flagging_rules.id` to prevent accidental rule deletion.
 Flags: Data integrity violation; GDPR right-to-erasure compliance; audit trail corruption
 
@@ -664,7 +664,7 @@ Flags: Data integrity violation; GDPR right-to-erasure compliance; audit trail c
 ### DB-003
 **[CRITICAL] | [CONSTRAINTS] | [staff_review.py:20-21]**
 Problem: `StaffReview.transcript_id` stored as plain `String(36)` with no foreign key constraint. Reviews can reference non-existent transcripts.
-Evidence: `staff_review.py` lines 20-21: `transcript_id: Mapped[str] = mapped_column(String(36), nullable=False)` — no `ForeignKey` definition.
+Evidence: `staff_review.py` lines 20-21: `transcript_id: Mapped[str] = mapped_column(String(36), nullable=False)`, no `ForeignKey` definition.
 Fix: `transcript_id: Mapped[str] = mapped_column(ForeignKey("transcripts.id", ondelete="CASCADE"), nullable=False)`
 Flags: Data integrity violation; orphaned review records possible
 
@@ -672,8 +672,8 @@ Flags: Data integrity violation; orphaned review records possible
 
 ### DB-004
 **[CRITICAL] | [QUERY PATTERNS] | [program_repository.py:21-28]**
-Problem: `find_by_name()` loads ALL active programs into Python memory and iterates with string matching — O(n) memory complexity. Will timeout with 1000+ records.
-Evidence: `program_repository.py` lines 21-28: `for prog in self.list_active():` — fetches every active program, then does string comparison in application memory.
+Problem: `find_by_name()` loads ALL active programs into Python memory and iterates with string matching, O(n) memory complexity. Will timeout with 1000+ records.
+Evidence: `program_repository.py` lines 21-28: `for prog in self.list_active():`, fetches every active program, then does string comparison in application memory.
 Fix: Push filtering to SQL using `func.lower()` with `.contains()`:
 ```python
 self.db.query(AccreditedProgram)
@@ -688,7 +688,7 @@ Flags: O(n) memory complexity; CPU overhead; production performance blocker
 ### DB-005
 **[CRITICAL] | [SCALABILITY] | [database.py:17-18]**
 Problem: No explicit connection pool configuration. Default pooling will be exhausted under concurrent load.
-Evidence: `database.py` lines 17-18: `create_engine(db_url, connect_args=connect_args, echo=False)` — no `poolclass`, `pool_size`, `max_overflow`, or `pool_recycle`.
+Evidence: `database.py` lines 17-18: `create_engine(db_url, connect_args=connect_args, echo=False)`, no `poolclass`, `pool_size`, `max_overflow`, or `pool_recycle`.
 Fix: For SQLite: `NullPool`. For PostgreSQL: `QueuePool(pool_size=20, max_overflow=40, pool_recycle=3600, pool_pre_ping=True)`.
 Flags: Production-blocking; connection leaks under load
 
@@ -715,7 +715,7 @@ Flags: Data inconsistency; orphaned records; compliance violation
 ### DB-008
 **[CRITICAL] | [TRANSACTIONS] | [services/verification_service.py:51-78]**
 Problem: Verification audit log (lines 74-78) called AFTER `db.commit()` (line 72). If audit logging fails, verification succeeded but has no audit record.
-Evidence: `verification_service.py`: `self.db.commit()` at line 72, `self.audit.log()` at lines 74-78 — two separate transaction boundaries.
+Evidence: `verification_service.py`: `self.db.commit()` at line 72, `self.audit.log()` at lines 74-78, two separate transaction boundaries.
 Fix: Move audit log creation inside the transaction. Commit atomically. Log failure separately on exception.
 Flags: Audit trail gaps; inconsistent state on failure
 
@@ -733,7 +733,7 @@ Flags: Inconsistent state; orphaned reviews; audit gaps
 ### DB-010
 **[CRITICAL] | [SENSITIVE DATA] | [extracted_data.py:20,28]**
 Problem: Student PII (`student_name`) and full transcript OCR text (`raw_text`) stored as plain text. Violates HIPAA, GDPR, and similar regulations.
-Evidence: `extracted_data.py` line 20: `student_name: Mapped[Optional[str]] = mapped_column(String(255))` — plaintext. Line 28: `raw_text: Mapped[Optional[str]] = mapped_column(Text)` — entire transcript text, may contain SSN, address, phone.
+Evidence: `extracted_data.py` line 20: `student_name: Mapped[Optional[str]] = mapped_column(String(255))`, plaintext. Line 28: `raw_text: Mapped[Optional[str]] = mapped_column(Text)`, entire transcript text, may contain SSN, address, phone.
 Fix: Use `sqlalchemy-utils` `EncryptedType` column with `settings.encryption_key`. Or use `cryptography.fernet` hybrid property for field-level encryption.
 Flags: HIPAA violation; GDPR violation; regulatory audit failure
 
@@ -760,7 +760,7 @@ Flags: Schema clarity; missing category index
 ### DB-013
 **[MAJOR] | [SCHEMA DESIGN] | [verification_flag.py:18-30]**
 Problem: No composite unique constraint on `(transcript_id, rule_id)`. The same rule can flag the same transcript multiple times.
-Evidence: `verification_flag.py` lines 19-24: FK to both `transcripts.id` and `flagging_rules.id` — no composite uniqueness enforced.
+Evidence: `verification_flag.py` lines 19-24: FK to both `transcripts.id` and `flagging_rules.id`, no composite uniqueness enforced.
 Fix: `UniqueConstraint('transcript_id', 'rule_id', name='uq_vflag_transcript_rule')` in `__table_args__`.
 Flags: Duplicate flag detection; data quality
 
@@ -769,7 +769,7 @@ Flags: Duplicate flag detection; data quality
 ### DB-014
 **[MAJOR] | [SCHEMA DESIGN] | [accredited_program.py:10-21]**
 Problem: `AccreditedProgram` table has no `created_at` or `updated_at` timestamp fields. Impossible to audit when a program was added or last modified.
-Evidence: `accredited_program.py` — no DateTime fields anywhere.
+Evidence: `accredited_program.py`, no DateTime fields anywhere.
 Fix: Add `created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)` and `updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, onupdate=datetime.utcnow)`.
 Flags: Audit trail; compliance; temporal analysis
 
@@ -787,7 +787,7 @@ Flags: Two DB round-trips per page request
 ### DB-016
 **[MAJOR] | [INDEXES] | [staff_review.py:13-29]**
 Problem: `StaffReview` queries by `transcript_id` (full table scan) with no index. `reviewed_at` also unindexed.
-Evidence: `review_repository.py` line 18: `filter(StaffReview.transcript_id == transcript_id)` — no index.
+Evidence: `review_repository.py` line 18: `filter(StaffReview.transcript_id == transcript_id)`, no index.
 Fix: `Index('idx_staff_review_transcript_id', 'transcript_id')` and `Index('idx_staff_review_reviewed_at', 'reviewed_at')` in `__table_args__`.
 Flags: Query performance; N+1 queries in bulk operations
 
@@ -805,7 +805,7 @@ Flags: N+1 queries; performance degradation at scale
 ### DB-018
 **[CRITICAL] | [SCHEMA DESIGN] | [transcript.py:22]**
 Problem: `Transcript.status` is an unconstrained `String(20)`. Invalid states can be persisted via bugs or direct SQL, breaking state machine logic.
-Evidence: `transcript.py` line 22: `status: Mapped[str] = mapped_column(String(20), nullable=False, default="UPLOADED")` — no constraint on values.
+Evidence: `transcript.py` line 22: `status: Mapped[str] = mapped_column(String(20), nullable=False, default="UPLOADED")`, no constraint on values.
 Fix: Use `SQLEnum(TranscriptStatus)` or add `CheckConstraint("status IN ('UPLOADED','EXTRACTING','EXTRACTED','VERIFYING','FLAGGED','CLEAR','REVIEWED','OVERRIDDEN')")`.
 Flags: State machine integrity; data quality
 
@@ -823,7 +823,7 @@ Flags: Data truncation risk; consistency
 ### DB-020
 **[MINOR] | [CONSTRAINTS] | [audit_log.py:17-19]**
 Problem: `AuditLog.transcript_id` is `nullable=True` with no documentation explaining when a NULL transcript ID is valid.
-Evidence: `audit_log.py` lines 17-19: `nullable=True` FK — semantically ambiguous.
+Evidence: `audit_log.py` lines 17-19: `nullable=True` FK, semantically ambiguous.
 Fix: Either make it `nullable=False` (all audit events tied to a transcript) or add a code comment: `# NULL indicates system-level audit event (e.g., startup, config change)`.
 Flags: Schema clarity
 
@@ -849,7 +849,7 @@ Flags: Scalability; maintainability
 
 ### DB-023
 **[MINOR] | [SEEDING] | [database.py:86-102,127-144]**
-Problem: Race condition — two instances starting simultaneously both see `count == 0` and both attempt inserts, causing unique constraint violations.
+Problem: Race condition, two instances starting simultaneously both see `count == 0` and both attempt inserts, causing unique constraint violations.
 Evidence: `database.py` lines 88-89: check-then-insert pattern with no atomicity guarantee.
 Fix: Use upsert: `insert(FlaggingRule).values(...).on_conflict_do_nothing()`.
 Flags: Data integrity; parallel deployment
@@ -858,8 +858,8 @@ Flags: Data integrity; parallel deployment
 
 ### DB-024
 **[MINOR] | [ORM USAGE] | [transcripts.py:61-68]**
-Problem: *(Informational)* Background task session lifecycle was initially flagged. On review, the code correctly uses `with SessionLocal() as session:` context manager — no fix needed.
-Evidence: `transcripts.py` lines 61-68: `with SessionLocal() as session:` — properly scoped.
+Problem: *(Informational)* Background task session lifecycle was initially flagged. On review, the code correctly uses `with SessionLocal() as session:` context manager, no fix needed.
+Evidence: `transcripts.py` lines 61-68: `with SessionLocal() as session:`, properly scoped.
 Fix: No fix needed. Add clarifying comment: `# Context manager ensures session cleanup even on exception`.
 Flags: Code quality; documentation only
 
@@ -882,29 +882,29 @@ Flags: Security; configuration management
 ---
 
 ### SEC-001
-**[CRITICAL] | [Authentication] | [All API endpoints — transcripts.py, reviews.py, programs.py, audit.py]**
+**[CRITICAL] | [Authentication] | [All API endpoints, transcripts.py, reviews.py, programs.py, audit.py]**
 Problem: No authentication mechanism exists on any API endpoint. All endpoints are completely public and do not validate user identity.
 Evidence: All routes in `/api/v1/` accept requests without any token, session, or credential validation. Frontend passes `X-Staff-ID` header but backend does NOT verify it is legitimate.
 Fix: Implement OAuth 2.0 or JWT-based authentication. Add `HTTPBearer` middleware validating `Authorization: Bearer <token>` on all non-public endpoints. Add `Depends(verify_token)` to every protected route.
-Flags: OWASP A01:2021 — Broken Authentication; production deployment blocker
+Flags: OWASP A01:2021, Broken Authentication; production deployment blocker
 
 ---
 
 ### SEC-002
 **[CRITICAL] | [Authorization] | [programs.py:24,27-28]**
 Problem: Authorization based on client-controlled `X-Staff-Role` header. Any user can set any header value.
-Evidence: `programs.py` lines 27-28: `if x_staff_role != "admin": raise HTTPException(...)` — header value comes directly from user request, no server-side verification.
+Evidence: `programs.py` lines 27-28: `if x_staff_role != "admin": raise HTTPException(...)`, header value comes directly from user request, no server-side verification.
 Fix: Remove reliance on client-supplied headers. After authenticating (SEC-001), look up the user's role from server-side storage. Validate against server-stored permissions.
-Flags: OWASP A01:2021 — trivially bypassed
+Flags: OWASP A01:2021, trivially bypassed
 
 ---
 
 ### SEC-003
 **[CRITICAL] | [Secrets Management] | [api/v1/health.py:23]**
 Problem: Public health endpoint leaks LLM API key configuration status.
-Evidence: `health.py` line 23: `"llm_api": "reachable" if settings.gemini_api_key else "not_configured"` — public endpoint reveals internal configuration.
+Evidence: `health.py` line 23: `"llm_api": "reachable" if settings.gemini_api_key else "not_configured"`, public endpoint reveals internal configuration.
 Fix: Remove LLM status from public health check. Restrict to authenticated admin users only.
-Flags: OWASP A07:2021 — Information Disclosure; reconnaissance vector
+Flags: OWASP A07:2021, Information Disclosure; reconnaissance vector
 
 ---
 
@@ -913,7 +913,7 @@ Flags: OWASP A07:2021 — Information Disclosure; reconnaissance vector
 Problem: CORS middleware missing `allow_credentials=True`. Must be addressed when cookie-based auth is added.
 Evidence: `main.py` lines 23-28: `CORSMiddleware` configuration does not include `allow_credentials`.
 Fix: Add `allow_credentials=True`. Restrict `allow_headers` to only required headers.
-Flags: OWASP A07:2021 — CORS misconfiguration
+Flags: OWASP A07:2021, CORS misconfiguration
 
 ---
 
@@ -929,9 +929,9 @@ Flags: Production deployment blocker
 ### SEC-006
 **[MAJOR] | [Input Validation & Injection] | [transcripts.py:143-152; transcript_repository.py:27-28]**
 Problem: `status` query parameter accepts any unconstrained string before database filtering.
-Evidence: `transcripts.py` line 143: `status: Optional[str] = Query(default=None)` — no whitelist.
+Evidence: `transcripts.py` line 143: `status: Optional[str] = Query(default=None)`, no whitelist.
 Fix: Replace with `Optional[TranscriptStatus]` Pydantic enum. Non-enum values automatically rejected with 422.
-Flags: OWASP A03:2021 — Injection; status enumeration
+Flags: OWASP A03:2021, Injection; status enumeration
 
 ---
 
@@ -940,7 +940,7 @@ Flags: OWASP A03:2021 — Injection; status enumeration
 Problem: `action_type` query parameter accepts any string without validation.
 Evidence: `audit.py` line 17: `action_type: Optional[str] = Query(default=None)`.
 Fix: Create `AuditActionType` enum; use `Optional[AuditActionType]` in route signature.
-Flags: OWASP A03:2021 — Injection
+Flags: OWASP A03:2021, Injection
 
 ---
 
@@ -958,16 +958,16 @@ Flags: OWASP A09:2021; GDPR/HIPAA compliance risk
 Problem: No rate limiting on any API endpoint. Unlimited uploads, processing requests, and log enumeration possible.
 Evidence: No `slowapi` or equivalent middleware configured anywhere.
 Fix: `pip install slowapi`. Apply `@limiter.limit("10/hour")` to upload, `@limiter.limit("30/minute")` to processing, `@limiter.limit("100/hour")` to read endpoints.
-Flags: OWASP A05:2021 — DoS attack vector
+Flags: OWASP A05:2021, DoS attack vector
 
 ---
 
 ### SEC-010
 **[MAJOR] | [Data Exposure] | [extracted_data.py:20,28]**
 Problem: Student PII (`student_name`) and full transcript OCR text (`raw_text`) stored unencrypted in SQLite. May contain SSN, address, phone, DOB.
-Evidence: `extracted_data.py` line 20: `student_name: Mapped[Optional[str]] = mapped_column(String(255))` — plaintext. Line 28: `raw_text: Mapped[Optional[str]] = mapped_column(Text)`.
+Evidence: `extracted_data.py` line 20: `student_name: Mapped[Optional[str]] = mapped_column(String(255))`, plaintext. Line 28: `raw_text: Mapped[Optional[str]] = mapped_column(Text)`.
 Fix: Use `sqlalchemy-utils` `EncryptedType` with `ENCRYPTION_KEY` env var. Or use `cryptography.fernet` hybrid property.
-Flags: OWASP A02:2021 — Cryptographic Failures; GDPR Article 32; HIPAA §164.312(a)(2)(iv)
+Flags: OWASP A02:2021, Cryptographic Failures; GDPR Article 32; HIPAA §164.312(a)(2)(iv)
 
 ---
 
@@ -976,7 +976,7 @@ Flags: OWASP A02:2021 — Cryptographic Failures; GDPR Article 32; HIPAA §164.3
 Problem: IP address is optional in audit logs (`None` possible). Insufficient for forensic analysis.
 Evidence: `api/v1/reviews.py` line 21: `ip = request.client.host if request.client else None`. No user-agent logging.
 Fix: `ip = request.client.host if request.client else "UNKNOWN"`. Add `user_agent = request.headers.get("user-agent")` to audit detail.
-Flags: OWASP A09:2021 — Logging and Monitoring Failures
+Flags: OWASP A09:2021, Logging and Monitoring Failures
 
 ---
 
@@ -985,25 +985,25 @@ Flags: OWASP A09:2021 — Logging and Monitoring Failures
 Problem: Frontend `.env` contains API base URL. While gitignored, presence creates accidental commit risk.
 Evidence: `frontend/.env` line 1: `VITE_API_BASE_URL=http://localhost:8000/api/v1`.
 Fix: Document clearly in README that `.env` must never be committed. Use CI/CD secrets for production builds.
-Flags: OWASP A01:2021 — Configuration Exposure
+Flags: OWASP A01:2021, Configuration Exposure
 
 ---
 
 ### SEC-013
 **[MAJOR] | [Input Validation & Injection] | [transcript_service.py:25-56]**
 Problem: File validation relies solely on magic bytes. Can be bypassed by prepending PDF magic bytes to malicious content.
-Evidence: `transcript_service.py` lines 25-56: `mime = _detect_mime_type(file_bytes)` — magic bytes only. No PDF structure validation, no antivirus, no extracted text size limit.
+Evidence: `transcript_service.py` lines 25-56: `mime = _detect_mime_type(file_bytes)`, magic bytes only. No PDF structure validation, no antivirus, no extracted text size limit.
 Fix: Add secondary PDF structural validation (pdfplumber open + page count check). Add max extracted text size cap. Consider ClamAV integration.
-Flags: OWASP A04:2021 — Insecure Deserialization; CWE-434: Unrestricted Upload
+Flags: OWASP A04:2021, Insecure Deserialization; CWE-434: Unrestricted Upload
 
 ---
 
 ### SEC-014
 **[MAJOR] | [Dependency Vulnerabilities] | [requirements.txt]**
 Problem: Multiple outdated dependencies with potential CVEs. No automated vulnerability scanning.
-Evidence: `requirements.txt`: `google-generativeai==0.5.0` (Dec 2023), `Pillow==10.3.0`, `pdfplumber==0.11.0`, `fastapi==0.110.0`, `sqlalchemy==2.0.29` — all from early 2024.
+Evidence: `requirements.txt`: `google-generativeai==0.5.0` (Dec 2023), `Pillow==10.3.0`, `pdfplumber==0.11.0`, `fastapi==0.110.0`, `sqlalchemy==2.0.29`, all from early 2024.
 Fix: Run `pip install safety && safety check`. Update all packages. Add `safety check` to CI/CD. Enable Dependabot.
-Flags: OWASP A06:2021 — Vulnerable and Outdated Components
+Flags: OWASP A06:2021, Vulnerable and Outdated Components
 
 ---
 
@@ -1012,32 +1012,32 @@ Flags: OWASP A06:2021 — Vulnerable and Outdated Components
 Problem: UUID4 IDs combined with missing authentication (SEC-001) allow any user to access any transcript by knowing its ID (IDOR).
 Evidence: Transcript IDs used in URLs with no ownership verification.
 Fix: After implementing auth (SEC-001), add ownership check: `filter(Transcript.id == id, Transcript.uploaded_by == current_user.id)`.
-Flags: OWASP A01:2021 — Insecure Direct Object Reference (IDOR)
+Flags: OWASP A01:2021, Insecure Direct Object Reference (IDOR)
 
 ---
 
 ### SEC-016
 **[MINOR] | [Input Validation & Injection] | [schemas/review.py:10; schemas/transcript.py]**
 Problem: String input fields lack `max_length` constraints, allowing potential resource exhaustion.
-Evidence: `review.py` line 10: `decision: str` — no length constraint. `annotation`, `override_reason` also unconstrained.
+Evidence: `review.py` line 10: `decision: str`, no length constraint. `annotation`, `override_reason` also unconstrained.
 Fix: Add `Field(..., max_length=36)` for IDs, `Field(default=None, max_length=5000)` for text fields.
-Flags: OWASP A03:2021 — Resource exhaustion
+Flags: OWASP A03:2021, Resource exhaustion
 
 ---
 
 ### SEC-017
 **[MINOR] | [Input Validation & Injection] | [Frontend components; types/index.ts:40]**
 Problem: LLM-generated `source_excerpt` rendered in components without explicit sanitization. Potential XSS vector if rendering ever switches to HTML.
-Evidence: `types/index.ts` line 40: `source_excerpt: string | null` — rendered via React (escapes by default). No `dangerouslySetInnerHTML` found currently.
+Evidence: `types/index.ts` line 40: `source_excerpt: string | null`, rendered via React (escapes by default). No `dangerouslySetInnerHTML` found currently.
 Fix: Maintain the no-`dangerouslySetInnerHTML` discipline. If rich text rendering ever needed, use `DOMPurify.sanitize()`. On backend, sanitize LLM output with `bleach.clean()`.
-Flags: OWASP A03:2021 — XSS; preemptive
+Flags: OWASP A03:2021, XSS; preemptive
 
 ---
 
 ### SEC-018
 **[MINOR] | [Transport Security] | [main.py]**
 Problem: No security HTTP headers set. Missing HSTS, X-Content-Type-Options, X-Frame-Options, CSP, Referrer-Policy.
-Evidence: `main.py` — no security header middleware.
+Evidence: `main.py`, no security header middleware.
 Fix:
 ```python
 response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
@@ -1046,16 +1046,16 @@ response.headers["X-Frame-Options"] = "DENY"
 response.headers["Content-Security-Policy"] = "default-src 'self'"
 response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
 ```
-Flags: OWASP A05:2021 — Security Misconfiguration
+Flags: OWASP A05:2021, Security Misconfiguration
 
 ---
 
 ### SEC-019
 **[MINOR] | [Security Logging] | [main.py; config.py:16]**
 Problem: No logging configuration. Default Python logging could expose stack traces with sensitive data in production.
-Evidence: `config.py` line 16: `log_level: str = "INFO"` — defined but no logger configured.
+Evidence: `config.py` line 16: `log_level: str = "INFO"`, defined but no logger configured.
 Fix: Configure logging with a `SensitiveDataFilter` class redacting `api_key`, `token`, `password` fields. Truncate detail in production: `logger.error(f"Unhandled: {str(exc)[:100]}")`.
-Flags: OWASP A09:2021 — Logging and Monitoring Failures
+Flags: OWASP A09:2021, Logging and Monitoring Failures
 
 ---
 
@@ -1073,7 +1073,7 @@ Flags: OWASP A05:2021
 Problem: Error responses include `exc.detail` which can expose internal implementation details in production.
 Evidence: `main.py` lines 31-42: exception handler returns `exc.detail` directly.
 Fix: In production (`settings.environment == "production"`), return only `exc.message`. In development, include `exc.detail`. Add `environment: str` to `Settings`.
-Flags: OWASP A04:2021 — Information Disclosure
+Flags: OWASP A04:2021, Information Disclosure
 
 ---
 
@@ -1082,7 +1082,7 @@ Flags: OWASP A04:2021 — Information Disclosure
 Problem: SQLite stores data unencrypted at rest. Inappropriate for production healthcare credential data.
 Evidence: `database.py` line 17: plain SQLite `create_engine` with no encryption.
 Fix: For production, migrate to PostgreSQL with `sslmode=require`. Document current risk for PoC use.
-Flags: OWASP A02:2021 — Cryptographic Failures; HIPAA §164.312(a)(2)(iv)
+Flags: OWASP A02:2021, Cryptographic Failures; HIPAA §164.312(a)(2)(iv)
 
 ---
 
@@ -1096,7 +1096,7 @@ Flags: OWASP A02:2021 — Cryptographic Failures; HIPAA §164.312(a)(2)(iv)
 ### UX-001
 **[CRITICAL] | [Visual Consistency] | [App.tsx:22-34; index.css:5-50; tailwind.config.js:1-11]**
 Problem: Navigation bar uses hardcoded Tailwind blue colors (`text-blue-600`, `border-blue-600`) while global design tokens (`--accent: #aa3bff`) are defined as CSS custom properties in `index.css`. These systems are completely disconnected.
-Evidence: `App.tsx` lines 22-34: `text-blue-600`. `index.css` lines 5-50: `--accent`, `--accent-bg`. `tailwind.config.js` line 8: `extend: {}` — zero token extension.
+Evidence: `App.tsx` lines 22-34: `text-blue-600`. `index.css` lines 5-50: `--accent`, `--accent-bg`. `tailwind.config.js` line 8: `extend: {}`, zero token extension.
 Fix: Extend `tailwind.config.js` with CSS variable references. Update navigation to use semantic classes from the token system. Create `@apply` utilities in `index.css`.
 Flags: Design token inconsistency; hard-to-theme application
 
@@ -1122,7 +1122,7 @@ Flags: No component consistency; poor maintainability
 
 ### UX-004
 **[MAJOR] | [Design Token System] | [Multiple component files]**
-Problem: Color palette duplicated — raw Tailwind color classes (`bg-red-100`, `text-red-700`, `bg-blue-600`) scattered throughout with no single source of truth.
+Problem: Color palette duplicated, raw Tailwind color classes (`bg-red-100`, `text-red-700`, `bg-blue-600`) scattered throughout with no single source of truth.
 Evidence: `bg-red-` appears in 5+ files. `bg-blue-` appears 15+ times in different shades. `border-gray-` appears 20+ times. `index.css` defines `--accent` but `App.tsx` uses `bg-blue-600`.
 Fix: Create `src/utils/colors.ts` with centralized color aliases. Extend `tailwind.config.js` with these values.
 Flags: Maintenance nightmare; inconsistent experience
@@ -1150,7 +1150,7 @@ Flags: Poor UX; inaccessible (no user control over redirect)
 ### UX-007
 **[MAJOR] | [Feedback & States] | [AuditLogPage.tsx:42; TranscriptListPage.tsx:27; VerificationPage.tsx:20; ProgramsPage.tsx:89]**
 Problem: Loading states are bare text with no spinner, skeleton, or context.
-Evidence: Four files all show `<div className="text-gray-500">Loading…</div>` — no animation, no context.
+Evidence: Four files all show `<div className="text-gray-500">Loading…</div>`, no animation, no context.
 Fix: Create reusable `LoadingSpinner` component with context message. Implement skeleton screens for tables/lists.
 Flags: Poor feedback; user uncertainty
 
@@ -1158,7 +1158,7 @@ Flags: Poor feedback; user uncertainty
 
 ### UX-008
 **[MAJOR] | [Error States] | [ReviewForm.tsx:71; UploadPage.tsx:31; TranscriptListPage.tsx:28; VerificationPage.tsx:21]**
-Problem: Error states inconsistent — inline red text, ProgressBar messages, and full-page red divs. No retry or recovery mechanism anywhere.
+Problem: Error states inconsistent, inline red text, ProgressBar messages, and full-page red divs. No retry or recovery mechanism anywhere.
 Evidence: Four different error implementations, none with a retry button.
 Fix: Create unified `ErrorAlert` component with `error`, `onRetry`, `onDismiss` props. Apply consistently across all async operations.
 Flags: No recovery paths; user feels stuck
@@ -1177,7 +1177,7 @@ Flags: Missed user guidance; inconsistent UX
 ### UX-010
 **[MAJOR] | [Mobile Responsiveness] | [index.css:57-67; App.tsx:22; TranscriptListPage.tsx:45; ProgramsPage.tsx:57]**
 Problem: Root layout constrained to 1126px. Navigation doesn't collapse on mobile. Tables require horizontal scrolling. Grid forms break on small screens.
-Evidence: `index.css` line 58: `#root { width: 1126px; }`. `App.tsx` line 22: 4 full nav items, no hamburger. `ProgramsPage.tsx` line 57: `grid grid-cols-2` — too narrow on phones.
+Evidence: `index.css` line 58: `#root { width: 1126px; }`. `App.tsx` line 22: 4 full nav items, no hamburger. `ProgramsPage.tsx` line 57: `grid grid-cols-2`, too narrow on phones.
 Fix: Mobile-first responsive design. Hamburger nav for < 768px. Card layouts for tables on mobile. `grid-cols-1 md:grid-cols-2`.
 Flags: Poor mobile experience; navigation non-functional on mobile
 
@@ -1213,7 +1213,7 @@ Flags: WCAG 2.1 compliance issues; keyboard navigation broken
 ### UX-014
 **[MAJOR] | [Accessibility & Inclusivity] | [TranscriptListPage.tsx:67; AuditLogTable.tsx:30; Multiple components]**
 Problem: Several color combinations likely fail WCAG AA contrast. Disabled states use `opacity-50` reducing contrast further.
-Evidence: `text-gray-500` on white (#9ca3af on #ffffff ≈ 4.5:1 — borderline/fails for small text). Disabled buttons at `opacity-50` significantly reduce contrast.
+Evidence: `text-gray-500` on white (#9ca3af on #ffffff ≈ 4.5:1, borderline/fails for small text). Disabled buttons at `opacity-50` significantly reduce contrast.
 Fix: Run WebAIM contrast checker on all combinations. Replace weak grays with `text-gray-700` minimum for body copy. Use visual patterns instead of opacity for disabled states.
 Flags: WCAG AA failure; legal accessibility risk
 
@@ -1240,15 +1240,15 @@ Flags: Unclear UX; complex mental model; error-prone
 ### UX-017
 **[MAJOR] | [Feedback & States] | [VerificationPage.tsx:36-40; TranscriptListPage.tsx:24]**
 Problem: Intermediate processing states (EXTRACTING, VERIFYING) poorly communicated. Auto-refresh works silently with no visual indicator.
-Evidence: `TranscriptListPage.tsx` line 24: `refetchInterval: 5000` — silent background polling. No "last updated" indicator.
-Fix: Create `ProcessingState` component with progress indicator and status explanation. Show "Last updated X seconds ago — refreshing..." indicator.
+Evidence: `TranscriptListPage.tsx` line 24: `refetchInterval: 5000`, silent background polling. No "last updated" indicator.
+Fix: Create `ProcessingState` component with progress indicator and status explanation. Show "Last updated X seconds ago, refreshing..." indicator.
 Flags: Poor user feedback; unclear system state
 
 ---
 
 ### UX-018
 **[MINOR] | [Component Consistency] | [AuditLogPage.tsx:30; VerificationPage.tsx:28; TranscriptListPage.tsx:37; ProgramsPage.tsx:52]**
-Problem: Button text patterns inconsistent — "← Back", "+ Upload New", "Export JSON" (no icon), "Details"/"Hide" toggle — no convention.
+Problem: Button text patterns inconsistent, "← Back", "+ Upload New", "Export JSON" (no icon), "Details"/"Hide" toggle, no convention.
 Evidence: Four different text pattern styles across navigation and action buttons.
 Fix: Establish standards: Navigation: "← Back". Actions: verb-noun. Toggles: "Show/Hide Details".
 Flags: Minor consistency issue
@@ -1285,7 +1285,7 @@ Flags: Minor inconsistency; visual polish
 ### UX-022
 **[MINOR] | [Feedback & States] | [ReviewForm.tsx:35-36]**
 Problem: After review submission succeeds, form just clears with no success message. User cannot confirm submission worked.
-Evidence: `ReviewForm.tsx` lines 35-36: `onSuccess: () => { ...; onSubmitted(); }` — no success UI.
+Evidence: `ReviewForm.tsx` lines 35-36: `onSuccess: () => { ...; onSubmitted(); }`, no success UI.
 Fix: Show brief success message ("Review submitted successfully") for 3 seconds before clearing. Indicate next steps.
 Flags: Minor UX issue; user confusion
 
@@ -1321,7 +1321,7 @@ Flags: Minor UX issue; confusing empty state
 ### UX-026
 **[MINOR] | [Visual Consistency] | [AuditLogPage.tsx:30; VerificationPage.tsx:28; FileDropzone.tsx:43]**
 Problem: Icon buttons and text within links have inconsistent spacing. "browse" in FileDropzone is a `<span>` not a `<button>`.
-Evidence: `FileDropzone.tsx` line 43: `<span>browse</span>` — styled as interactive but not keyboard-focusable.
+Evidence: `FileDropzone.tsx` line 43: `<span>browse</span>`, styled as interactive but not keyboard-focusable.
 Fix: Change the "browse" span to `<button type="button">`. Enforce spacing standards around arrows.
 Flags: Minor polish; accessibility issue
 
@@ -1400,7 +1400,7 @@ Flags: Deployment blocker
 ### DO-004
 **[MAJOR] | [Environment Management] | [backend/.env:2]**
 Problem: The `.env` file contains a real Google Gemini API key. While `.gitignore` lists `.env`, the file is one accidental `git add .` away from being committed.
-Evidence: `backend/.env` line 2: `GEMINI_API_KEY=AIza...` — actual key value present on disk.
+Evidence: `backend/.env` line 2: `GEMINI_API_KEY=AIza...`, actual key value present on disk.
 Fix: Rotate the API key immediately in Google Cloud Console. For production, use GCP Secret Manager, AWS Secrets Manager, or CI/CD secrets. Document in README that secrets must be injected at runtime.
 Flags: Security incident risk; PCI/HIPAA/SOC2 non-compliance
 
@@ -1409,7 +1409,7 @@ Flags: Security incident risk; PCI/HIPAA/SOC2 non-compliance
 ### DO-005
 **[MAJOR] | [Environment Management] | [app/config.py:7; app/infrastructure/llm_adapter.py:54]**
 Problem: Application does not validate required environment variables at startup. Missing `GEMINI_API_KEY` only surfaces when the LLM is first called.
-Evidence: `config.py` line 7: `gemini_api_key: str = ""` — empty default, no required constraint.
+Evidence: `config.py` line 7: `gemini_api_key: str = ""`, empty default, no required constraint.
 Fix: Add Pydantic `field_validator` to reject empty `gemini_api_key`. Add startup validation in `main.py` probing LLM connectivity and failing fast.
 Flags: Silent failure risk
 
@@ -1459,7 +1459,7 @@ Flags: Vulnerability management gap
 ### DO-010
 **[CRITICAL] | [Logging Infrastructure] | [main.py; config.py:16]**
 Problem: No centralized logging. Application logs to stdout only with no JSON formatting, no log aggregation, no retention, no searchability. `log_level` config setting is unused.
-Evidence: `config.py` line 16: `log_level: str = "INFO"` — never consumed. `main.py`: no `logging` module imported.
+Evidence: `config.py` line 16: `log_level: str = "INFO"`, never consumed. `main.py`: no `logging` module imported.
 Fix: Create `logging_config.py` with `python-json-logger`, `RotatingFileHandler`, and per-service loggers. Add HTTP middleware for request/response logging with correlation IDs. Pipe to ELK/Datadog/CloudWatch in production.
 Flags: No observability; HIPAA audit trail gap
 
@@ -1468,7 +1468,7 @@ Flags: No observability; HIPAA audit trail gap
 ### DO-011
 **[CRITICAL] | [Error Monitoring] | [transcripts.py:61-69; main.py]**
 Problem: No error tracking (Sentry, Rollbar) or APM. Failed background tasks fail silently. No alerting on new errors.
-Evidence: `transcripts.py` lines 61-69: `_run_pipeline()` background task — exceptions not caught, not logged, not reported. No Sentry or equivalent configured.
+Evidence: `transcripts.py` lines 61-69: `_run_pipeline()` background task, exceptions not caught, not logged, not reported. No Sentry or equivalent configured.
 Fix: `pip install sentry-sdk`. Configure `sentry_sdk.init(dsn=settings.sentry_dsn, ...)` in `main.py`. Wrap background task in try/except with `sentry_sdk.capture_exception(e)`. Add global unhandled exception handler.
 Flags: Silent failure risk; compliance gap
 
@@ -1504,7 +1504,7 @@ Flags: Technical debt; future compatibility
 ### DO-015
 **[MAJOR] | [Scalability & Reliability] | [database.py:17-18; migrations/env.py:45]**
 Problem: No connection pool configuration. `NullPool` in migrations context; no explicit pool for app engine.
-Evidence: `database.py` lines 17-18: `create_engine(db_url, connect_args=connect_args, echo=False)` — no pool params.
+Evidence: `database.py` lines 17-18: `create_engine(db_url, connect_args=connect_args, echo=False)`, no pool params.
 Fix: For PostgreSQL: `QueuePool(pool_size=10, max_overflow=20, pool_recycle=3600, pool_pre_ping=True)`. For SQLite (dev): explicit `NullPool`. Add `database_pool_size` and `database_max_overflow` to `Settings`.
 Flags: Production scaling blocker
 
@@ -1513,7 +1513,7 @@ Flags: Production scaling blocker
 ### DO-016
 **[MAJOR] | [Scalability & Reliability] | [transcripts.py:24-46,49-75]**
 Problem: No rate limiting on any endpoint. Upload and processing can be flooded, causing DoS. Background task queue has no bounds.
-Evidence: No `slowapi` or equivalent. Both upload and process endpoints accept unlimited requests. `background_tasks.add_task(_run_pipeline)` — unlimited queue depth.
+Evidence: No `slowapi` or equivalent. Both upload and process endpoints accept unlimited requests. `background_tasks.add_task(_run_pipeline)`, unlimited queue depth.
 Fix: `pip install slowapi`. Apply `@limiter.limit("10/minute")` to upload, `@limiter.limit("30/minute")` to processing. Consider Celery or RQ for bounded background task queue.
 Flags: DoS vulnerability
 

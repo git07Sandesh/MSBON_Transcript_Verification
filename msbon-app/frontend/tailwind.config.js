@@ -7,14 +7,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        cream:              "#F7F3EE",
-        "cream-dark":       "#EDE7DC",
+        cream:              "#F5F0E6",
+        "cream-dark":       "#EBE5D6",
         charcoal:           "#1E1E1E",
         "charcoal-muted":   "#6B6560",
         "charcoal-faint":   "#1E1E1E14",
-        terracotta:         "#B84A32",
-        "terracotta-dark":  "#9F3E2A",
-        "terracotta-light": "#B84A321A",
+        terracotta:         "#1A3A52",
+        "terracotta-dark":  "#0F2638",
+        "terracotta-light": "#1A3A521A",
       },
       fontFamily: {
         display: ["'Fraunces Variable'", "Fraunces", "Georgia", "serif"],

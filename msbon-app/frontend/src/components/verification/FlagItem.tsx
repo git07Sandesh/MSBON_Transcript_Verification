@@ -25,7 +25,7 @@ export default function FlagItem({
   staffId,
   onReviewSubmitted,
 }: Props) {
-  // Expanded by default — the audit explicitly called out that hiding the
+  // Expanded by default, the audit explicitly called out that hiding the
   // explanation + review form behind a click slowed down reviewers.
   const [expanded, setExpanded] = useState(true);
 

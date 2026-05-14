@@ -1,5 +1,5 @@
 /* Three small, single-color, no-axis-clutter charts for the dashboard.
- * Plain SVG — no chart library. Editorial restraint: terracotta on
+ * Plain SVG, no chart library. Editorial restraint: terracotta on
  * cream-dark, no gridlines, labels in DM Sans label scale.
  */
 import type { DailyCount, RuleCount, DecisionCount } from "../../services/insightsClient";

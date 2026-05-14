@@ -80,7 +80,7 @@ export default function HowItWorksPage() {
               The tool is built around the reviewer's attention budget. Mechanical
               checks come pre-done; the screen tells the reviewer where to look,
               what fired, and why. The reviewer's job becomes the part of the job that
-              needs a person — judgment.
+              needs a person, judgment.
             </p>
           </div>
         </FadeUp>

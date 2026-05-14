@@ -9,7 +9,7 @@
 | Version | Date | Author | Description |
 |---------|------|--------|-------------|
 | 0.1 | 2026-03-28 | Team Nexus | Initial draft |
-| 1.0 | 2026-03-28 | Team Nexus | Baseline SDD — PoC scope |
+| 1.0 | 2026-03-28 | Team Nexus | Baseline SDD, PoC scope |
 
 ---
 
@@ -33,11 +33,11 @@
 
 ### 1.1 Purpose
 
-This Software Design Document (SDD) provides the complete technical specification for the MSBON Fraud-Sensitive Transcript Verification System — a Proof of Concept (PoC) developed for the Mississippi State Board of Nursing (MSBON) by Team Nexus at The University of Southern Mississippi. It describes the system's architecture, data models, component interactions, API contracts, security posture, and testing strategy, and serves as the authoritative reference for development and stakeholder review.
+This Software Design Document (SDD) provides the complete technical specification for the MSBON Fraud-Sensitive Transcript Verification System, a Proof of Concept (PoC) developed for the Mississippi State Board of Nursing (MSBON) by Team Nexus at The University of Southern Mississippi. It describes the system's architecture, data models, component interactions, API contracts, security posture, and testing strategy, and serves as the authoritative reference for development and stakeholder review.
 
 ### 1.2 Scope
 
-The system automates the extraction and rule-based verification of nursing school transcripts submitted to MSBON for licensure applications. It flags potential anomalies — missing graduation confirmation, accreditation mismatches, course deficiencies, fraud indicators, and formatting inconsistencies — for human staff review. All staff decisions and system actions are captured in tamper-evident audit logs. **No automated licensure decisions are ever made by this system.**
+The system automates the extraction and rule-based verification of nursing school transcripts submitted to MSBON for licensure applications. It flags potential anomalies, missing graduation confirmation, accreditation mismatches, course deficiencies, fraud indicators, and formatting inconsistencies, for human staff review. All staff decisions and system actions are captured in tamper-evident audit logs. **No automated licensure decisions are ever made by this system.**
 
 ### 1.3 Definitions, Acronyms, and Abbreviations
 
@@ -72,7 +72,7 @@ The system automates the extraction and rule-based verification of nursing schoo
 - FastAPI Official Documentation
 - Google Gemini API Documentation
 - OWASP Top 10 Security Guidelines (2021)
-- PEP 8 — Python Style Guide
+- PEP 8, Python Style Guide
 
 ### 1.5 Document Overview
 
@@ -84,7 +84,7 @@ Section 2 provides a system overview and stakeholder context. Section 3 covers l
 
 ### 2.1 Background and Problem Statement
 
-The Mississippi State Board of Nursing currently reviews nursing school transcripts manually to confirm that applicants have completed an approved nursing education program. This process is time-consuming, inconsistent across institutions, and vulnerable to human error. Federal investigations such as Operation Nightingale demonstrated that bad actors can exploit gaps in manual review processes to fraudulently obtain nursing licenses — a direct threat to public safety.
+The Mississippi State Board of Nursing currently reviews nursing school transcripts manually to confirm that applicants have completed an approved nursing education program. This process is time-consuming, inconsistent across institutions, and vulnerable to human error. Federal investigations such as Operation Nightingale demonstrated that bad actors can exploit gaps in manual review processes to fraudulently obtain nursing licenses, a direct threat to public safety.
 
 ### 2.2 System Purpose
 
@@ -141,12 +141,12 @@ graph TB
 
 | Constraint | Detail |
 |------------|--------|
-| Scope | PoC only — not for production deployment or public access |
+| Scope | PoC only, not for production deployment or public access |
 | Transcript origin | Only domestic (U.S.) transcripts in scope |
 | Data | Only synthetic or de-identified sample transcripts during development |
 | Storage | No permanent retention of real transcript content |
 | Network | Operates on local or private network |
-| AI authority | All AI outputs advisory — no automated licensure decisions |
+| AI authority | All AI outputs advisory, no automated licensure decisions |
 | Runtime | Python 3.11+, Node.js 18+ |
 
 ---
@@ -184,7 +184,7 @@ graph TB
 | Benefit | How it applies |
 |---------|---------------|
 | Testability | Each layer tested independently with mocks at boundaries |
-| Auditability | All business logic isolated — every flag traceable to a rule class |
+| Auditability | All business logic isolated, every flag traceable to a rule class |
 | Maintainability | Rule engine evolves without touching API or UI |
 | Explainability | Transparent rule logic required by scope; no black-box processing |
 
@@ -192,11 +192,11 @@ graph TB
 
 ```mermaid
 graph TB
-    subgraph browser["Browser — Staff Machine"]
+    subgraph browser["Browser, Staff Machine"]
         SPA["React SPA\n────────────────\nVite + TypeScript\nReact Query\nZustand\nTailwind CSS\nPort: 5173"]
     end
 
-    subgraph server["Application Server — Local / Private Network"]
+    subgraph server["Application Server, Local / Private Network"]
         direction TB
         FAPI["FastAPI Backend\n────────────────\nPython 3.11+\nUvicorn ASGI\nPort: 8000"]
         RE["Rule Engine\n────────────────\nPure Python\nStateless"]
@@ -209,7 +209,7 @@ graph TB
         FS["File System\n────────────────\n./uploads/ (temp)\n./logs/"]
     end
 
-    subgraph gemini["External — HTTPS"]
+    subgraph gemini["External, HTTPS"]
         GAPI["Google Gemini API\n────────────────\ngenerativelanguage\n.googleapis.com\ngemini-2.0-flash"]
     end
 
@@ -227,19 +227,19 @@ graph TB
 
 ```mermaid
 graph TB
-    subgraph mw["Middleware — app/middleware/"]
+    subgraph mw["Middleware, app/middleware/"]
         CID["CorrelationIDMiddleware"]
         REQ["RequestLoggingMiddleware"]
         CORS["CORSMiddleware"]
     end
 
-    subgraph auth["Auth — app/auth/, app/api/v1/auth.py, app/api/v1/dependencies.py"]
+    subgraph auth["Auth, app/auth/, app/api/v1/auth.py, app/api/v1/dependencies.py"]
         LOGIN["auth.login\nPOST /auth/login"]
         VTOK["verify_token\nDepends()"]
         RPERM["require_permission(p)\nRBAC"]
     end
 
-    subgraph api["API Layer — app/api/v1/"]
+    subgraph api["API Layer, app/api/v1/"]
         TR["transcripts.py\nRouter"]
         RV["reviews.py\nRouter"]
         AL["audit.py\nRouter"]
@@ -247,7 +247,7 @@ graph TB
         HE["health.py\nRouter"]
     end
 
-    subgraph svc["Service Layer — app/services/"]
+    subgraph svc["Service Layer, app/services/"]
         TS["TranscriptService\nupload · process · get · list"]
         ES["ExtractionService\nextract()"]
         VS["VerificationService\nverify()"]
@@ -255,7 +255,7 @@ graph TB
         AS["AuditService\nlog · get · export"]
     end
 
-    subgraph dom["Domain Layer — app/domain/"]
+    subgraph dom["Domain Layer, app/domain/"]
         REN["RuleEngine\nrun_all()"]
         GR["GraduationConfirmation\n+ GraduationDate"]
         AR["AccreditationRule"]
@@ -264,12 +264,12 @@ graph TB
         FMR["FormattingConsistencyRule"]
     end
 
-    subgraph infra["Infrastructure Layer — app/infrastructure/"]
+    subgraph infra["Infrastructure Layer, app/infrastructure/"]
         DOCEX["DocumentExtractor\npdfplumber + pytesseract"]
         LLMAD["LLMAdapter\ngoogle-generativeai"]
     end
 
-    subgraph repo["Repositories — app/repositories/"]
+    subgraph repo["Repositories, app/repositories/"]
         TREP["TranscriptRepository"]
         RREP["ReviewRepository"]
         AREP["AuditRepository<br/>(write-only)"]
@@ -346,14 +346,14 @@ graph TB
 
 ```mermaid
 graph TB
-    subgraph workstation["Staff Workstation — macOS / Windows / Linux"]
+    subgraph workstation["Staff Workstation, macOS / Windows / Linux"]
         subgraph termA["Terminal A"]
             VITE["Vite Dev Server\nnpm run dev\nlocalhost:5173\nProxy /api → :8000"]
         end
         subgraph termB["Terminal B"]
             UVCN["Uvicorn ASGI\nuvicorn app.main:app --reload\nlocalhost:8000"]
         end
-        subgraph fs["Local File System — /Desktop/CSC 424/msbon-app/"]
+        subgraph fs["Local File System, /Desktop/CSC 424/msbon-app/"]
             DB3[("data/msbon.db\nSQLite")]
             UPL["uploads/\nTemp transcripts"]
             LOG["logs/app.log"]
@@ -361,7 +361,7 @@ graph TB
         BROWSER["Staff Browser\nhttp://localhost:5173"]
     end
 
-    subgraph ext["External — HTTPS"]
+    subgraph ext["External, HTTPS"]
         GAPI2["generativelanguage.googleapis.com\nGoogle Gemini API"]
     end
 
@@ -486,7 +486,7 @@ erDiagram
 | file_type | VARCHAR(10) | NOT NULL, CHECK IN ('pdf','image') | File category |
 | status | VARCHAR(20) | NOT NULL | See §4.3 state machine |
 | uploaded_at | DATETIME | NOT NULL | UTC timestamp |
-| processed_at | DATETIME | NULLABLE | UTC — set when verification completes |
+| processed_at | DATETIME | NULLABLE | UTC, set when verification completes |
 | uploaded_by | VARCHAR(100) | NOT NULL | Staff identifier from `X-Staff-ID` header |
 
 #### Table: `extracted_data`
@@ -548,7 +548,7 @@ erDiagram
 | timestamp | DATETIME | NOT NULL | UTC |
 | ip_address | VARCHAR(45) | NULLABLE | IPv4 or IPv6 |
 
-> **Immutability constraint:** No UPDATE or DELETE operations are permitted on `audit_logs`. Enforced at the `AuditRepository` layer — `save()` is the only allowed write operation.
+> **Immutability constraint:** No UPDATE or DELETE operations are permitted on `audit_logs`. Enforced at the `AuditRepository` layer, `save()` is the only allowed write operation.
 
 #### Table: `flagging_rules`
 
@@ -647,7 +647,7 @@ flowchart TD
 
 ## 5. Component Design
 
-### 5.1 Class Diagram — Domain Models
+### 5.1 Class Diagram, Domain Models
 
 ```mermaid
 classDiagram
@@ -751,7 +751,7 @@ classDiagram
     FlaggingRule "1" --> "0..*" VerificationFlag : produces
 ```
 
-### 5.2 Class Diagram — Service Layer
+### 5.2 Class Diagram, Service Layer
 
 ```mermaid
 classDiagram
@@ -808,7 +808,7 @@ classDiagram
     ReviewService --> AuditService
 ```
 
-### 5.3 Class Diagram — Rule Engine
+### 5.3 Class Diagram, Rule Engine
 
 ```mermaid
 classDiagram
@@ -892,7 +892,7 @@ classDiagram
 | FORM-002 | Inconsistent date formatting | FORMAT | LOW | Dates appear in multiple conflicting formats |
 | FORM-003 | Inconsistent grade formatting | FORMAT | LOW | Grade notation changes mid-transcript |
 
-### 5.5 Class Diagram — Infrastructure Layer
+### 5.5 Class Diagram, Infrastructure Layer
 
 ```mermaid
 classDiagram
@@ -1015,7 +1015,7 @@ Upload a transcript file for processing.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| file | binary | Yes | PDF, PNG, JPEG, or TIFF — max 10MB |
+| file | binary | Yes | PDF, PNG, JPEG, or TIFF, max 10MB |
 | uploaded_by | string | Yes | Staff identifier |
 
 **Response `201 Created`:**
@@ -1157,7 +1157,7 @@ Submit a staff review decision on a specific flag.
 |-------|--------|---------|
 | format | `csv` \| `json` | `json` |
 
-**Response:** Binary file download — `Content-Disposition: attachment; filename="audit_{transcript_id}.{format}"`
+**Response:** Binary file download, `Content-Disposition: attachment; filename="audit_{transcript_id}.{format}"`
 
 ---
 
@@ -1174,7 +1174,7 @@ Submit a staff review decision on a specific flag.
 }
 ```
 
-### 6.3 Sequence Diagram — Full Transcript Verification Flow
+### 6.3 Sequence Diagram, Full Transcript Verification Flow
 
 ```mermaid
 sequenceDiagram
@@ -1239,7 +1239,7 @@ sequenceDiagram
     FE-->>Staff: Display flag review dashboard
 ```
 
-### 6.4 Sequence Diagram — Staff Review Decision
+### 6.4 Sequence Diagram, Staff Review Decision
 
 ```mermaid
 sequenceDiagram
@@ -1263,7 +1263,7 @@ sequenceDiagram
     API->>RS: submit_review(...)
     RS->>RS: _validate_override(decision, override_reason)
 
-    alt Validation fails — override_reason missing
+    alt Validation fails, override_reason missing
         RS-->>API: Raise OverrideReasonRequiredError
         API-->>FE: 422 OVERRIDE_REASON_REQUIRED
         FE-->>Staff: Show validation error
@@ -1285,7 +1285,7 @@ You are a transcript verification assistant for the Mississippi State Board of N
 Your only task is to extract structured information from nursing school transcripts.
 Do not infer, guess, or fabricate any information.
 If a field cannot be determined from the document, return null for that field.
-Return ONLY a valid JSON object — no explanation, no markdown, no code fences.
+Return ONLY a valid JSON object, no explanation, no markdown, no code fences.
 ```
 
 **User Prompt Template:**
@@ -1343,15 +1343,15 @@ TRANSCRIPT TEXT:
 | **Info Disclosure** | API key leak via logs / responses | HIGH | `GEMINI_API_KEY` and `JWT_SECRET` read from env only; never logged or returned; redacted in any structured log scrubber |
 | **Denial of Service** | Upload request flooding | LOW | 10 MB hard size limit at FastAPI; rate limiting deferred to Phase B |
 | **Elevation of Privilege** | Non-admin accessing program / rule management | MEDIUM | `require_permission(Permission.MANAGE_PROGRAMS)` dependency on every admin route; permission set sourced exclusively from JWT role claim |
-| **Elevation of Privilege** | Identity impersonation via request body | MEDIUM | `reviewer_id` is **never** read from the request body — always taken from the verified JWT `sub` claim |
+| **Elevation of Privilege** | Identity impersonation via request body | MEDIUM | `reviewer_id` is **never** read from the request body, always taken from the verified JWT `sub` claim |
 
 ### 7.2 File Upload Security Controls
 
 | Control | Implementation |
 |---------|---------------|
-| MIME type validation | `python-magic` reads file magic bytes — not file extension |
+| MIME type validation | `python-magic` reads file magic bytes, not file extension |
 | Cross-validation | Detected MIME must match the claimed extension; mismatch → 422 |
-| Filename sanitization | Files saved as `{uuid}.{ext}` — original filename used for display only |
+| Filename sanitization | Files saved as `{uuid}.{ext}`, original filename used for display only |
 | Path traversal prevention | Upload directory is a fixed absolute path; filenames never concatenated raw |
 | Size limit | Enforced at FastAPI middleware before file is written to disk |
 | Storage isolation | `./uploads/` is outside the static file serving root |
@@ -1370,7 +1370,7 @@ Authentication is stateless and JWT-based, implemented with `python-jose` and HM
 | Token lifetime | 480 minutes (8-hour shift), configurable via `JWT_EXPIRE_MINUTES` |
 | Payload | `{"sub": "<staff_id>", "role": "admin\|reviewer\|viewer", "exp": <unix-ts>}` |
 | Issued by | `POST /api/v1/auth/login` |
-| Verified by | `verify_token` dependency in `app/api/v1/dependencies.py` — applied to every protected route |
+| Verified by | `verify_token` dependency in `app/api/v1/dependencies.py`, applied to every protected route |
 
 #### 7.3.2 Role-Based Access Control
 
@@ -1443,7 +1443,7 @@ sequenceDiagram
 ### 7.4 CORS Configuration
 
 ```python
-# app/main.py — current implementation
+# app/main.py, current implementation
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,    # env: CORS_ORIGINS, comma-separated
@@ -1452,7 +1452,7 @@ app.add_middleware(
 )
 ```
 
-`X-Staff-ID` and `X-Staff-Role` are intentionally **not** in `allow_headers` — they are no longer trusted inputs.
+`X-Staff-ID` and `X-Staff-Role` are intentionally **not** in `allow_headers`, they are no longer trusted inputs.
 
 ### 7.5 Observability and Audit Hardening
 
@@ -1460,7 +1460,7 @@ app.add_middleware(
 |---------|--------|
 | Correlation ID | `CorrelationIDMiddleware` sets/propagates `X-Correlation-ID`; included in every log line and audit row |
 | Structured logging | `app/logging_config.py` configures `python-json-logger`; all logs are JSON Lines for ingestion by SIEM |
-| Request log | `RequestLoggingMiddleware` records method, path, status, duration, correlation_id, actor_id (if auth'd) — **no body, no headers** |
+| Request log | `RequestLoggingMiddleware` records method, path, status, duration, correlation_id, actor_id (if auth'd), **no body, no headers** |
 | Audit append-only | `AuditRepository.update()` / `.delete()` raise `OperationNotPermittedError` |
 | Sentry | Optional `SENTRY_DSN`; PII scrubbing rules deny `Authorization`, `Cookie`, `password` keys |
 
@@ -1469,11 +1469,11 @@ app.add_middleware(
 | Control | Detail |
 |---------|--------|
 | No live data | Only synthetic / de-identified transcripts used during PoC |
-| Log sanitization | Log messages reference `transcript_id` only — never student name or PII |
+| Log sanitization | Log messages reference `transcript_id` only, never student name or PII |
 | LLM transmission | Transcript text sent to Google Gemini over HTTPS only; outbound host allow-listed |
 | Audit detail scrubbing | `AuditLog.action_detail` JSON omits raw transcript text; references `transcript_id` for joins |
 | Temp file cleanup | Uploaded files deleted after `FILE_RETENTION_HOURS` (default 24 h) via background task |
-| Field-level encryption | Reserved for Phase B (DB-010) — not in PoC scope |
+| Field-level encryption | Reserved for Phase B (DB-010), not in PoC scope |
 
 ---
 
@@ -1506,7 +1506,7 @@ flowchart TD
     F --> E
     E -->|"Yes"| G["Retry next attempt"]
     G --> B
-    E -->|"No — 3 attempts exhausted"| H["Raise LLMUnavailableError"]
+    E -->|"No, 3 attempts exhausted"| H["Raise LLMUnavailableError"]
     H --> I["transcript status = EXTRACTION_FAILED"]
     I --> J["AuditService.log(EXTRACT, FAILURE)"]
     J --> K["API returns 503\nStaff prompted to retry manually"]
@@ -1540,9 +1540,9 @@ All custom exceptions (`InvalidFileTypeError`, `ExtractionFailedError`, `LLMUnav
 
 ```mermaid
 graph TB
-    E2E["E2E Tests — 5%\nPlaywright\nFull upload → verify → review flow\nRuns against live dev server"]
-    INT["Integration Tests — 25%\npytest + FastAPI TestClient\nSQLite in-memory DB\nAll API endpoints"]
-    UNIT["Unit Tests — 70%\npytest\nRule classes · Services · Extractor\nLLMAdapter (mocked Gemini)"]
+    E2E["E2E Tests, 5%\nPlaywright\nFull upload → verify → review flow\nRuns against live dev server"]
+    INT["Integration Tests, 25%\npytest + FastAPI TestClient\nSQLite in-memory DB\nAll API endpoints"]
+    UNIT["Unit Tests, 70%\npytest\nRule classes · Services · Extractor\nLLMAdapter (mocked Gemini)"]
 
     E2E --> INT --> UNIT
 ```
@@ -1579,8 +1579,8 @@ graph TB
 
 | Transcript ID | Description | Expected Flags |
 |---------------|-------------|----------------|
-| TEST-CLEAN-BSN | Valid BSN — all fields complete, ACEN-accredited school | None |
-| TEST-CLEAN-ADN | Valid ADN — all fields complete, CCNE-accredited school | None |
+| TEST-CLEAN-BSN | Valid BSN, all fields complete, ACEN-accredited school | None |
+| TEST-CLEAN-ADN | Valid ADN, all fields complete, CCNE-accredited school | None |
 | TEST-NO-GRAD | Transcript without graduation/degree conferral statement | GRAD-001 |
 | TEST-NO-DATE | Graduation date field absent | GRAD-002 |
 | TEST-PARTIAL | Incomplete program, missing required nursing courses | COUR-001 |
@@ -1632,7 +1632,7 @@ msbon-app/
 │   ├── app/
 │   │   ├── __init__.py
 │   │   ├── main.py                         # FastAPI app factory, CORS, routers
-│   │   ├── config.py                       # pydantic-settings — loads .env
+│   │   ├── config.py                       # pydantic-settings, loads .env
 │   │   ├── database.py                     # SQLAlchemy engine + session dependency
 │   │   │
 │   │   ├── api/
@@ -1707,9 +1707,9 @@ msbon-app/
 │   │       ├── synthetic_transcripts/
 │   │       └── conftest.py
 │   │
-│   ├── data/                    # gitignored — SQLite DB file
-│   ├── uploads/                 # gitignored — temp transcript storage
-│   ├── logs/                    # gitignored — app log files
+│   ├── data/                    # gitignored, SQLite DB file
+│   ├── uploads/                 # gitignored, temp transcript storage
+│   ├── logs/                    # gitignored, app log files
 │   ├── requirements.txt
 │   ├── requirements-dev.txt
 │   ├── alembic.ini

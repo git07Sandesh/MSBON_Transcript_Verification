@@ -12,7 +12,7 @@ We verify by:
 For older projects still using HS256 we fall back to ``SUPABASE_JWT_SECRET``.
 
 Per the Supabase security checklist, our app role lives in
-``app_metadata.role`` — never ``user_metadata`` (which is user-editable).
+``app_metadata.role``, never ``user_metadata`` (which is user-editable).
 The token's top-level ``role`` claim is the Postgres role
 (``authenticated``/``anon``), unrelated to our RBAC.
 """
@@ -123,7 +123,7 @@ async def verify_token(
     except JWTError:
         raise _unauthorized("Invalid token")
 
-    # NEVER read role from user_metadata — that's user-editable.
+    # NEVER read role from user_metadata, that's user-editable.
     app_meta = payload.get("app_metadata") or {}
     payload["role"] = app_meta.get("role", "viewer")
     return payload

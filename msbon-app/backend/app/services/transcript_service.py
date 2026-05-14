@@ -87,7 +87,7 @@ class TranscriptService:
         if not file_type:
             raise InvalidFileTypeError(f"Detected MIME type '{mime}' is not allowed.")
 
-        # Save file as {uuid}.{ext} — original filename never concatenated to path
+        # Save file as {uuid}.{ext}, original filename never concatenated to path
         ext = os.path.splitext(filename)[1].lower()
         if ext not in ALLOWED_EXTENSIONS:
             ext = ".pdf" if file_type == "pdf" else ".png"
@@ -124,7 +124,7 @@ class TranscriptService:
                 ip_address=ip_address,
             )
         except Exception:
-            # DB save failed — remove the orphaned file
+            # DB save failed, remove the orphaned file
             logger.exception("DB insert failed for upload %s; removing file", transcript_id)
             try:
                 os.remove(file_path)

@@ -1,5 +1,5 @@
 """
-Audit repository — intentionally write-only.
+Audit repository, intentionally write-only.
 update() and delete() raise OperationNotPermittedError per SDD §5.5.
 """
 from typing import Optional
@@ -39,7 +39,7 @@ class AuditRepository:
         return query.order_by(AuditLog.timestamp.desc()).offset(skip).limit(limit).all()
 
     def update(self, *args, **kwargs):
-        raise OperationNotPermittedError("audit_logs records are immutable — update is not permitted.")
+        raise OperationNotPermittedError("audit_logs records are immutable, update is not permitted.")
 
     def delete(self, *args, **kwargs):
-        raise OperationNotPermittedError("audit_logs records are immutable — delete is not permitted.")
+        raise OperationNotPermittedError("audit_logs records are immutable, delete is not permitted.")

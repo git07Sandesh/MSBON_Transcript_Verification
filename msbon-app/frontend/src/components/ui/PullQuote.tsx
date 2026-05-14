@@ -19,7 +19,7 @@ export default function PullQuote({ children, attribution, className = "" }: Pul
       </blockquote>
       {attribution && (
         <figcaption className="mt-4 font-sans text-label uppercase tracking-wider text-charcoal-muted">
-          — {attribution}
+         , {attribution}
         </figcaption>
       )}
     </figure>

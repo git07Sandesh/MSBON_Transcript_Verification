@@ -42,7 +42,7 @@ export default function HomePage() {
               className="font-display italic text-display-md text-charcoal-muted max-w-[28ch]"
               style={{ fontVariationSettings: '"opsz" 36, "wght" 400' }}
             >
-              AI-assisted first-pass verification for nursing licensure&nbsp;— humans keep the decision.
+              AI-assisted first-pass verification for nursing licensure&nbsp;- humans keep the decision.
             </p>
 
             <div className="pt-6">
@@ -59,7 +59,7 @@ export default function HomePage() {
                 role="img"
                 aria-label="A nursing transcript under review on a desk in Hattiesburg, Mississippi."
               >
-                {/* Editorial placeholder — engraved hatching pattern hints at archival paper */}
+                {/* Editorial placeholder, engraved hatching pattern hints at archival paper */}
                 <svg
                   aria-hidden="true"
                   className="absolute inset-0 w-full h-full opacity-[0.04] text-charcoal"
@@ -177,9 +177,9 @@ export default function HomePage() {
         <FadeUp delay={0.2}>
           <div className="prose-editorial">
             <p>
-              We built a tool that does the boring half of the work — extracting
+              We built a tool that does the boring half of the work, extracting
               structured data from a transcript, evaluating it against twelve
-              transparent rules — and presents the result to a human reviewer who
+              transparent rules, and presents the result to a human reviewer who
               keeps full authority. Every flag carries the rule that fired, the
               source excerpt the rule fired against, and a plain-language
               explanation. Every decision is logged. Nothing is automated that
