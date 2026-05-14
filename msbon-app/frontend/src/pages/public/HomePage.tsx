@@ -17,10 +17,10 @@ const STATS: { value: number; suffix?: string; label: string }[] = [
 
 const TEAM = [
   { initials: "SB", name: "Sandesh Bhattarai", role: "Engineering, design" },
-  { initials: "NS", name: "Nishit",            role: "Backend, rule engine" },
-  { initials: "KP", name: "Kiran",             role: "Data, extraction" },
-  { initials: "CM", name: "Chance",            role: "DevOps, CI" },
-  { initials: "SV", name: "Suvi",              role: "Testing, audit" },
+  { initials: "NT", name: "Nishit Thapa",      role: "Backend, rule engine" },
+  { initials: "KS", name: "Kiran Silwal",      role: "Data, extraction" },
+  { initials: "CD", name: "Chance Davis",      role: "DevOps, CI" },
+  { initials: "SL", name: "Suvi Lama",         role: "Testing, audit" },
 ];
 
 export default function HomePage() {
