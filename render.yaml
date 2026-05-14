@@ -1,0 +1,73 @@
+# Render IaC: one Web Service running the FastAPI backend.
+#
+# Frontend is NOT here — that ships to Vercel. Database + Auth live on Supabase.
+#
+# To deploy:
+#   1. Push this repo to GitHub (already done).
+#   2. https://dashboard.render.com -> New + -> Web Service -> connect this repo.
+#      Render will auto-detect render.yaml and offer to apply it as a Blueprint.
+#   3. Fill in the secret env vars (sync: false below) in the Render dashboard
+#      after the service is created. Values come from msbon-app/backend/.env.
+#   4. First deploy will run `alembic upgrade head` (via /entrypoint.sh) before
+#      starting uvicorn — this creates the tables on the Supabase Postgres if
+#      they don't already exist (idempotent — already applied locally).
+#
+# Free plan caveats:
+#   - Spins down after 15 minutes of zero traffic.
+#   - Cold start ~30-60 seconds. The frontend's first request after idle will
+#     visibly hang; Lighthouse scores reflect cold start.
+#   - 512 MB RAM, 0.1 CPU. Plenty for the PoC.
+services:
+  - type: web
+    name: msbon-backend
+    runtime: docker
+    plan: free
+    region: oregon                              # closest free-plan region
+    rootDir: msbon-app/backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/v1/health
+    autoDeploy: true                            # redeploy on every push to main
+    envVars:
+      # ── Static config (committed safe) ──────────────────────────────
+      - key: APP_VERSION
+        value: 1.0.0-poc
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: GEMINI_MODEL
+        value: gemini-2.0-flash
+      - key: MAX_FILE_SIZE_MB
+        value: "10"
+      - key: FILE_RETENTION_HOURS
+        value: "24"
+      - key: UPLOAD_DIR
+        value: ./uploads
+      - key: DATABASE_POOL_SIZE
+        value: "5"
+      - key: DATABASE_MAX_OVERFLOW
+        value: "10"
+
+      # ── Secrets — paste these in the Render dashboard ───────────────
+      # Mark each as sync: false so Render won't try to read them from this file.
+      - key: GEMINI_API_KEY            # mock-... is fine for the demo
+        sync: false
+      - key: JWT_SECRET                # legacy local secret; Supabase JWKS is primary
+        sync: false
+      - key: ENCRYPTION_KEY            # reserved for Phase B field-level encryption
+        sync: false
+      - key: DATABASE_URL              # Supabase Session pooler URI (postgresql+psycopg://...)
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_JWT_SECRET
+        sync: false
+
+      # ── Updated AFTER the Vercel deploy lands a URL ─────────────────
+      # Set this to e.g. "https://msbon.vercel.app,https://msbon-<hash>.vercel.app"
+      - key: CORS_ORIGINS
+        sync: false
