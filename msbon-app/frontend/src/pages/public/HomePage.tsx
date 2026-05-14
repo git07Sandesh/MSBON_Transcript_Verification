@@ -8,6 +8,7 @@ import PullQuote        from "../../components/ui/PullQuote";
 import CTAButton        from "../../components/ui/CTAButton";
 import StatCounter      from "../../components/dataviz/StatCounter";
 import Asterism         from "../../components/ornaments/Asterism";
+import TranscriptIllustration from "../../components/illustrations/TranscriptIllustration";
 
 const STATS: { value: number; suffix?: string; label: string }[] = [
   { value: 12,             label: "Transparent verification rules" },
@@ -55,35 +56,14 @@ export default function HomePage() {
           <div className="md:col-span-2">
             <figure className="flex flex-col gap-3">
               <div
-                className="relative aspect-[4/5] bg-cream-dark border border-charcoal-faint overflow-hidden"
+                className="relative aspect-[4/5] border border-charcoal-faint overflow-hidden shadow-[0_8px_28px_-12px_rgba(30,30,30,0.18)]"
                 role="img"
-                aria-label="A nursing transcript under review on a desk in Hattiesburg, Mississippi."
+                aria-label="A representative nursing transcript with redacted student name."
               >
-                {/* Editorial placeholder, engraved hatching pattern hints at archival paper */}
-                <svg
-                  aria-hidden="true"
-                  className="absolute inset-0 w-full h-full opacity-[0.04] text-charcoal"
-                  viewBox="0 0 200 250"
-                  preserveAspectRatio="xMidYMid slice"
-                >
-                  <defs>
-                    <pattern id="hatch" patternUnits="userSpaceOnUse" width="4" height="4">
-                      <path d="M0 4L4 0" stroke="currentColor" strokeWidth="0.6" />
-                    </pattern>
-                  </defs>
-                  <rect width="200" height="250" fill="url(#hatch)" />
-                </svg>
-                <div className="absolute inset-x-10 top-12 bottom-12 border border-charcoal-faint flex items-center justify-center">
-                  <span
-                    className="font-display italic text-display-md text-charcoal-muted"
-                    style={{ fontVariationSettings: '"opsz" 36, "wght" 300' }}
-                  >
-                    Transcript<br />under review
-                  </span>
-                </div>
+                <TranscriptIllustration className="absolute inset-0 w-full h-full" />
               </div>
               <figcaption className="font-sans text-body-sm text-charcoal-muted">
-                Image: A nursing transcript under review · Hattiesburg, MS.
+                Sample transcript, redacted. Course list mirrors the curriculum the rule engine evaluates.
               </figcaption>
             </figure>
           </div>
