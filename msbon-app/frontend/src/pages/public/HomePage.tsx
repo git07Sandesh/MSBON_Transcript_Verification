@@ -16,11 +16,11 @@ const STATS: { value: number; suffix?: string; label: string }[] = [
 ];
 
 const TEAM = [
+  { initials: "SL", name: "Suvi Lama",         role: "Product Manager" },
   { initials: "SB", name: "Sandesh Bhattarai", role: "Engineering, design" },
   { initials: "NT", name: "Nishit Thapa",      role: "Backend, rule engine" },
   { initials: "KS", name: "Kiran Silwal",      role: "Data, extraction" },
   { initials: "CD", name: "Chance Davis",      role: "DevOps, CI" },
-  { initials: "SL", name: "Suvi Lama",         role: "Testing, audit" },
 ];
 
 export default function HomePage() {

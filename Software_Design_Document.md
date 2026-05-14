@@ -106,7 +106,7 @@ All AI outputs are **advisory only**. Human staff retain full decision-making au
 | Business Decision Maker | Shantannar Montgomery | Product direction, acceptance |
 | Data Validators | Dr. Burks, Dr. Smith, Talisha Greenlaw | Rule accuracy validation |
 | Primary Users | MSBON Staff | Upload, review, annotate |
-| Development Team | Team Nexus (Sandesh, Nishit, Kiran, Chance, Suvi) | Build and test |
+| Development Team | Team Nexus, led by Suvi Lama (Product Manager) with Sandesh Bhattarai, Nishit Thapa, Kiran Silwal, and Chance Davis | Build and test |
 
 ### 2.4 System Context Diagram (C4 Level 1)
 
